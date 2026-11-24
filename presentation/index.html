@@ -1,0 +1,1810 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Let's make NjegošGPT!</title>
+<meta name="description" content="DSC 2026 · live tutorial · Mitar Perović · GPT from scratch, character by character, on the works of Petar II Petrović Njegoš.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=EB+Garamond:ital,wght@1,400;1,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+
+<style>
+/* Excalifont (Excalidraw's handwriting font), split by unicode ranges, pinned to @excalidraw/excalidraw@0.18.0 */
+@font-face{font-family:"Excalifont";font-display:swap;src:url("https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.18.0/dist/prod/fonts/Excalifont/Excalifont-Regular-a88b72a24fb54c9f94e3b5fdaa7481c9.woff2") format("woff2");unicode-range:U+20-7E,U+A0-A3,U+A5-A6,U+A8-AB,U+AD-B1,U+B4,U+B6-B8,U+BA-FF,U+131,U+152-153,U+2BC,U+2C6,U+2DA,U+2DC,U+304,U+308,U+2013-2014,U+2018-201A,U+201C-201E,U+2020,U+2022,U+2024-2026,U+2030,U+2039-203A,U+20AC,U+2122,U+2212}
+@font-face{font-family:"Excalifont";font-display:swap;src:url("https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.18.0/dist/prod/fonts/Excalifont/Excalifont-Regular-be310b9bcd4f1a43f571c46df7809174.woff2") format("woff2");unicode-range:U+100-130,U+132-137,U+139-149,U+14C-151,U+154-17E,U+192,U+1FC-1FF,U+218-21B,U+237,U+1E80-1E85,U+1EF2-1EF3,U+2113}
+@font-face{font-family:"Excalifont";font-display:swap;src:url("https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.18.0/dist/prod/fonts/Excalifont/Excalifont-Regular-b9dcf9d2e50a1eaf42fc664b50a3fd0d.woff2") format("woff2");unicode-range:U+400-45F,U+490-491,U+2116}
+@font-face{font-family:"Excalifont";font-display:swap;src:url("https://cdn.jsdelivr.net/npm/@excalidraw/excalidraw@0.18.0/dist/prod/fonts/Excalifont/Excalifont-Regular-41b173a47b57366892116a575a43e2b6.woff2") format("woff2");unicode-range:U+37E,U+384-38A,U+38C,U+38E-3A1,U+3A3-3CF,U+3D7}
+
+:root{
+  --bg:#0a0d14;
+  --bg-2:#10141e;
+  --card:#131826;
+  --line:rgba(235,229,214,.10);
+  --text:#ebe7df;
+  --muted:#939aa9;
+  --dim:#6b7282;
+  --red:#e23b4a;
+  --red-soft:rgba(226,59,74,.14);
+  --gold:#d9b35b;
+  --gold-soft:rgba(217,179,91,.12);
+  --ink:#ebe5d6;
+  --sans:"Inter",system-ui,sans-serif;
+  --display:"Space Grotesk","Inter",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --hand:"Excalifont","Caveat",cursive;
+  --serif:"EB Garamond",Georgia,serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden}
+body{font-family:var(--sans);-webkit-font-smoothing:antialiased}
+
+#viewport{position:fixed;inset:0;overflow:hidden;background:#05070b}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center center}
+
+.slide{
+  position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;
+  padding:96px 130px 104px;display:flex;flex-direction:column;
+  background:
+    radial-gradient(1100px 620px at 92% -8%, rgba(226,59,74,.13), transparent 62%),
+    radial-gradient(900px 600px at -5% 110%, rgba(217,179,91,.06), transparent 60%),
+    var(--bg);
+  opacity:0;visibility:hidden;transition:opacity .35s ease;
+  font-size:30px;line-height:1.45;
+}
+.slide.active{opacity:1;visibility:visible}
+.slide.code-slide{padding-top:80px;padding-bottom:96px}
+
+/* header */
+.kicker{font-family:var(--mono);font-size:20px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.kicker::before{content:"";width:34px;height:2px;background:var(--red)}
+h1,h2,h3{font-family:var(--display);font-weight:600;letter-spacing:-.02em;line-height:1.05}
+h2{font-size:66px;margin-bottom:40px}
+h3{font-size:34px;margin-bottom:18px;color:var(--text)}
+h2 em,h1 em{font-style:normal;color:var(--red)}
+.gold{color:var(--gold)} .red{color:var(--red)} .muted{color:var(--muted)}
+
+.body{flex:1;min-height:0;display:flex;flex-direction:column}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:64px;flex:1;min-height:0}
+.cols.c64{grid-template-columns:1.5fr 1fr}
+.cols.c46{grid-template-columns:1fr 1.5fr}
+.cols.c73{grid-template-columns:2.1fr 1fr}
+.cols.c37{grid-template-columns:1fr 2.1fr}
+.stack{display:flex;flex-direction:column;gap:26px;min-height:0}
+.center{align-items:center;justify-content:center}
+
+ul.list{list-style:none;display:flex;flex-direction:column;gap:18px}
+ul.list li{position:relative;padding-left:40px}
+ul.list li::before{content:"";position:absolute;left:0;top:.66em;width:20px;height:2px;background:var(--red)}
+ul.list.tight{gap:10px}
+ul.list.small{font-size:26px}
+b,strong{font-weight:600;color:#fff}
+code.i{font-family:var(--mono);font-size:.86em;background:rgba(235,229,214,.07);border:1px solid var(--line);padding:.05em .35em;border-radius:6px;color:#f1e3c2}
+
+.card{background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.015));border:1px solid var(--line);border-radius:18px;padding:30px 34px}
+.card h3{font-size:28px}
+.callout{border-left:3px solid var(--red);padding:6px 0 6px 26px;font-size:27px;color:#d9d5cc}
+.callout.gold{border-color:var(--gold)}
+.lead{font-size:34px;color:#d9d5cc;max-width:1400px}
+.note-s{font-size:22px;color:var(--dim);font-family:var(--mono)}
+
+/* code */
+pre.code{font-family:var(--mono);font-size:23px;line-height:1.5;background:#0d111a;border:1px solid var(--line);border-radius:16px;padding:26px 32px;overflow:hidden;white-space:pre;color:#d7dae0;position:relative}
+pre.code.sm{font-size:20.5px;line-height:1.45}
+pre.code.lg{font-size:26px}
+pre.code[data-file]::after{content:attr(data-file);position:absolute;top:12px;right:18px;font-size:15px;color:var(--dim);letter-spacing:.06em}
+pre.code code{font-family:inherit;background:none;padding:0}
+pre.code,code.i,.term,.examples,pre.sample{font-variant-ligatures:none}
+.cols > pre.code,.cols > .term{align-self:center}
+.code-slide .cols > pre.code{align-self:start}
+.cols > .callout{align-self:start}
+.cols > table.t{align-self:center}
+.hljs-keyword,.hljs-meta .hljs-keyword{color:#ff7b86}
+.hljs-built_in{color:#c9a7ff}
+.hljs-title,.hljs-title.function_,.hljs-title.class_{color:#8fd3ff}
+.hljs-string{color:#e8c37c}
+.hljs-number,.hljs-literal{color:#f5a25d}
+.hljs-comment{color:#7c8496;font-style:italic}
+.hljs-meta{color:#d9b35b}
+.hljs-params{color:#d7dae0}
+.hljs-operator{color:#ff9aa3}
+.term{font-family:var(--mono);font-size:27px;line-height:1.6;background:#07090e;border:1px solid var(--line);border-radius:16px;padding:0;overflow:hidden}
+.term .bar{display:flex;gap:9px;padding:14px 18px;border-bottom:1px solid var(--line);background:#0e121b}
+.term .bar i{width:13px;height:13px;border-radius:50%;background:#2b3140;display:block}
+.term .bar i:first-child{background:var(--red)}
+.term .bar span{margin-left:12px;font-size:16px;color:var(--dim)}
+.term pre{padding:26px 32px;white-space:pre;font-family:inherit}
+.term .p{color:var(--red)} .term .c{color:#7c8496} .term .hl{color:#fff;font-weight:600}
+
+/* tables */
+table.t{border-collapse:collapse;width:100%;font-size:26px}
+table.t th,table.t td{padding:13px 18px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.t th{font-family:var(--mono);font-size:18px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+table.t td.num{font-family:var(--mono);text-align:right;color:#f1e3c2;white-space:nowrap}
+table.t td.win{color:var(--gold)}
+table.t tr.em td{color:#fff}
+
+/* diagrams */
+svg.rough{width:100%;height:auto;display:block;overflow:visible}
+svg.rough text{font-family:var(--hand)}
+.fig{display:flex;align-items:center;justify-content:center;min-height:0}
+.cap{font-family:var(--hand);font-size:24px;color:var(--muted);text-align:center;margin-top:6px}
+
+/* placeholders the speaker fills in after training */
+.ph{border:2px dashed rgba(217,179,91,.55);border-radius:16px;background:var(--gold-soft);position:relative}
+.ph::before{content:"TODO · " attr(data-ph);position:absolute;top:8px;right:14px;padding:0;z-index:2;font-style:normal;font-family:var(--mono);font-size:15px;letter-spacing:.1em;color:var(--gold)}
+.ph.inline::before{top:-26px;left:0;right:auto}
+.ph.filled{border-style:solid;border-color:var(--line);background:transparent}
+.ph.filled::before{display:none}
+pre.sample{font-family:var(--mono);font-size:22px;line-height:1.5;white-space:pre-wrap;padding:26px 30px;color:#efe8d8;overflow:hidden}
+pre.sample.verse{font-family:var(--serif);font-style:italic;font-size:32px;line-height:1.38}
+.figure img{max-width:100%;max-height:100%;display:block;border-radius:12px;background:#fff}
+.figure.missing img{display:none}
+.figure .missing-msg{display:none;color:var(--gold);font-family:var(--mono);font-size:22px;text-align:center;padding:40px}
+.figure.missing .missing-msg{display:block}
+
+/* footer */
+.foot{position:absolute;left:130px;right:130px;bottom:40px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:17px;color:var(--dim);letter-spacing:.08em}
+.foot .n b{color:var(--text);font-weight:600}
+.slide.title .foot,.slide.end .foot{display:none}
+
+/* title slide */
+.slide.title{padding:120px 150px;justify-content:center}
+.slide.title .frame{position:absolute;inset:34px;border:1px solid rgba(217,179,91,.28);border-radius:4px;pointer-events:none}
+.slide.title h1{font-size:132px;line-height:.98;letter-spacing:-.035em;max-width:1500px}
+.slide.title .sub{font-family:var(--display);font-size:40px;color:var(--muted);margin-top:30px;font-weight:500}
+.slide.title .who{margin-top:70px;display:flex;gap:30px;align-items:center;font-size:30px}
+.slide.title .who .dot{width:8px;height:8px;border-radius:50%;background:var(--red)}
+.slide.title .tag{font-family:var(--mono);font-size:22px;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;margin-bottom:40px}
+.slide.title svg.ridge{position:absolute;left:0;right:0;bottom:0;width:1920px;height:250px;opacity:.9}
+
+/* quotes */
+blockquote.q{font-family:var(--serif);font-style:italic;font-size:46px;line-height:1.22;color:#f3eee4;position:relative;padding-left:34px;border-left:2px solid var(--red)}
+blockquote.q cite{display:block;font-family:var(--sans);font-style:normal;font-size:21px;color:var(--muted);margin-top:14px;letter-spacing:.02em}
+
+blockquote.q .en{display:block;font-size:30px;line-height:1.3;color:var(--muted);margin-top:12px}
+
+/* agenda */
+ol.agenda{list-style:none;display:flex;flex-direction:column;gap:2px;font-size:27px;counter-reset:a}
+ol.agenda li{display:grid;grid-template-columns:52px 1fr auto;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line);counter-increment:a}
+ol.agenda li::before{content:counter(a,decimal-leading-zero);font-family:var(--mono);font-size:19px;color:var(--red)}
+ol.agenda li span.m{font-family:var(--mono);font-size:21px;color:var(--gold)}
+ol.agenda li.demo{color:#fff}
+ol.agenda li.demo span.m::after{content:" · live";color:var(--red)}
+
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat .v{font-family:var(--display);font-size:76px;font-weight:600;letter-spacing:-.03em;line-height:1}
+.stat .l{font-size:23px;color:var(--muted)}
+.big-formula{font-size:46px;text-align:center;padding:16px 0}
+.katex{font-size:1.05em}
+.pill{align-self:flex-start;display:inline-block;font-family:var(--mono);font-size:18px;letter-spacing:.1em;text-transform:uppercase;padding:6px 14px;border-radius:99px;border:1px solid var(--red);color:var(--red)}
+.pill.gold{border-color:var(--gold);color:var(--gold)}
+.examples{font-family:var(--mono);font-size:26px;line-height:1.55;color:#d7dae0;white-space:pre}
+.examples .t{color:var(--gold)}
+.examples .k{color:var(--muted)}
+.end h1{font-size:150px;letter-spacing:-.04em}
+
+.notes{display:none}
+
+/* diagram drawing animation (only when the slide is shown) */
+@keyframes draw{from{stroke-dashoffset:1;opacity:0}8%{opacity:1}to{stroke-dashoffset:0;opacity:1}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.slide.play svg.rough g.dr path{stroke-dasharray:1;animation:draw .75s ease-out both;animation-delay:min(calc(var(--i,0) * 38ms), 1700ms)}
+.slide.play svg.rough g.nd,.slide.play svg.rough text{animation:fadein .5s ease-out both;animation-delay:min(calc(var(--i,0) * 38ms + 150ms), 1850ms)}
+@media (prefers-reduced-motion:reduce){.slide.play svg.rough *{animation:none!important}}
+
+/* overview (o) */
+body.overview #viewport{overflow:auto}
+body.overview #stage{position:static;transform:none!important;width:auto;height:auto;display:grid;grid-template-columns:repeat(5,max-content);gap:22px;padding:34px;justify-content:center}
+body.overview .slide{position:relative;inset:auto;opacity:1;visibility:visible;zoom:var(--z,.17);cursor:pointer;outline:6px solid transparent;border-radius:10px;transition:none}
+body.overview .slide.active{outline-color:var(--red)}
+body.overview .slide:hover{outline-color:rgba(217,179,91,.6)}
+
+/* print: one slide per page */
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  html,body{overflow:visible;height:auto;background:var(--bg);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #viewport{position:static;overflow:visible;background:none}
+  #stage{position:static;transform:none!important;width:1920px;height:auto}
+  .slide{position:relative;inset:auto;opacity:1!important;visibility:visible!important;break-after:page;page-break-after:always;transition:none}
+  .slide *{animation:none!important}
+}
+</style>
+<script>
+/* Loss plot sources, tried in order: presentation/loss.png, ../out/loss.png, then the snapshot embedded below.
+   plot_loss.py refreshes presentation/loss.png; the embedded snapshot only changes when re-embedded. */
+window.LOSS_PNG = /*LOSS_PNG_START*/"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAAKjCAYAAAANs/bAAAAAOnRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjExLjIsIGh0dHBzOi8vbWF0cGxvdGxpYi5vcmcvgI3uAAAAAAlwSFlzAAAXEgAAFxIBZ5/SUgAAzfdJREFUeJzs3Qd4lFX2x/FfKqGH3nvvSBVQEBu4dqzof1VWsKBr772vrr33snbsYsWCiNIUpPfeOyGBhPT5P+eOM0kggQSSmcnM9/M87/PWeefOeyfszvHcc6M8Ho9HAAAAAAAAQIiKDnYDAAAAAAAAgP0hgAUAAAAAAICQRgALAAAAAAAAIY0AFgAAAAAAAEIaASwAAAAAAACENAJYAAAAAAAACGkEsAAAAAAAABDSCGABAAAAAAAgpBHAAgAAAAAAQEgjgAUAAAAAAICQRgALAAAAAAAAIY0AFgAAAAAAAEIaASwAAAAAAACENAJYAAAAAAAACGkEsAAAAAAAABDSCGABAAAAAAAgpBHAAgAAAAAAQEgjgAUAAAAAAICQRgALAAAAAAAAIY0AFgAAAAAAAEIaASwAAAAAAACENAJYAAAAAAAACGkEsAAAQMgYM2aMHnjgAWVkZPiPeTwePfHEE3rllVeC2jYAAAAET2wQ3xsAABykefPm6ZNPPlGVKlV0ww03hM1zbNSokc4991zt3r1bDz/8sDv20ksv6frrr9d7770X7OaFDHs+jz32mNu+8sorVbt2bUWKn376Sb///rtat26t//u//wt2cwAAQIBEeew/awIAgDK3atUqvfXWW/79UaNGuYBNUZ577jlt27ZN/fv31/HHH1/g3Icffqjhw4erXr162rRpk8LJP//5T33wwQcuSGGfr2vXrurRo4d+/fXXYgd3Jk2a5J73jh07VKFCBdWvX199+vRxQY/i9o9PXFycEhMT1alTJ9cX8fHx/nOvvfaa1q1bd1Cf0z7XsGHDDuq11ucNGjRw2wsXLlT79u0VKW655RY98sgjGjJkiL7//vtgNwcAAAQIGVgAAASIBUjuvfde/74FPiwAsr8A1uLFi1320d4BrHD26KOPauzYsbroootcAGvPnj3uWRzI7Nmz3fDDL774QtnZ2YVe065dO1166aUaPXq0C2ztr38KU7duXd1///265JJL3L7137Rp03Qwzj///IMOYAEAAEQaAlgAAASJZftYcKpDhw4lfm3nzp119913uyGE4caype655x5dd911LoB39dVXq0uXLvt9zbPPPuueZVZWltu3Z9q3b1/VqVPHHVu5cqUbemb3s/u+8MILmjp1qmrVqlXo/S6++GI1btzYbVsAbcmSJfrmm2+0ZcsWFwBLTU3Vtddeq5EjR2ro0KH7vH7RokWunpe5/PLLXeCrsAwslNyxxx6rhISE/WbTAQCA8EMACwCAILDAytatW3Xbbbfp888/P6gAli3h6t///rcLHFnw6Zprrtnvta+++qquuuoqt92zZ089//zzLni1Nws62bV33XWXli1bpqSkpCIDWBaYOvzww/cJSh111FHavHmz7rjjDl1wwQXuusJYFpgvgGXZXuHcV8EIYNkCAAAiCwEsAACCwAIglllkgY4pU6aoX79+ZVLE3Wbzs1pSCxYs0K5du1wm0KBBg9SmTZsDvsesWbPca62mlGVFHXPMMWrSpIn/vatVq+aymYpigZ7x48dr7dq1iomJUYsWLXT00Ue7elL7s3z5cve+0dHRqlq1qsaNG6eOHTsWGgRavXq1K2Ju7Bn+/PPPqlixYqH3rVy5sguGnX766TrhhBNUUlZn6sEHH3RBq7S0NP3444+u4Hwos1Kn1o9//PGHqwdmz7NXr16uHpg936JY4NCGRlrm2vr1691wy5YtW7rvTlH9Z3W5rOC+uemmm1SpUiXNnz9fkydPdsHamjVr6rLLLnPfeWuTrwZYenq6y46zLDd737Zt27ohs9ZfJS3ifqj39snNzdVvv/2mmTNnKjMzU82aNdNxxx3nPoPv/e1e5513ng6W/V1NnDjRBVMtWGsZf5ZpWFhm3htvvKE1a9a4v5+BAwcWej+rB2ZZhfY93ft7ufdzse/vL7/84t57586d+sc//qFvv/3WfV/OOeec/WaFWhaj1aiLiorSzTff7LLh9paSkqIJEya4v2V7fvbZ7N8P+3cEAICDZkXcAQBA2fvll19s4hS3LF261DNw4EC3bevCtGvXzp2//vrr9zn3wQcfuHP16tUr8v1eeeUVT926df3vmX8ZNmyYZ8eOHYW+bvv27Z5//OMf+7wmKirKc9lll3nefvttt9+oUaNCX79nzx7P6NGjPbGxsfvco1KlSp577rnHk5OTs8/rdu7c6TnttNMKba8tXbp08UybNq3Aa6644gp3Ljo62rNkyRJPcW3bts29X1H9M2XKlEJft2DBAv81Dz30UJH3//zzz/3XzZ07t9Brfv75Z8/dd9/tloyMDE9JbNy40X//hQsXFnrNxIkTPV27di30WXbr1s0za9asQl83YsQIT2JiYqGvs/677777Cu2/mTNn+q/766+/PIMHDy7wWmuLufDCC93++eef7/n0008L/Y7a9/rXX38ttH0333yzu2bIkCH7nDvUext7nt27d9/ndQkJCZ5HH33U//4nnnii52BkZmZ6br/9dk+VKlUKfcb23vPnzy/wmgEDBrhz999/f5H3vfrqq901p5566n6fi/391qxZs8B7vvHGG57DDz/cbV966aX7bb/9bdt1vXv33udcVlaW+2z2Pdn7c9m/B9dcc427BgCAg0EGFgAAQWIzqVnWkGVhWH2lE088sdTubRkwVgzdtGrVyp89snTpUn355Zf67LPPXHaEZWzkz6CwLBWb3W369Oluf/Dgwerdu7fL2LA2WoaNrfeXuXLyySe7LBVj2T427M6Kqlsmlc2YZ/WtLHPKskrys1kVv/vuO5cZZK+xjCtrm2Vw2essg8QyySx7yMc3/NKGlBUnq8ynqKGDgWTZaZbRZSyLLv/shofK+viss85y/VmjRg333WratKmr4WXnrOC9ZVP5Mnby++ijj1x2jX0PLHPGhrtaNp1lHdn3x4ZgWmafFcwvyqmnnur67YgjjnBDMS3jyQry52ffe8vksYyuCy+80M2quGLFCpctZO932mmnuX7f+3XFcbD33rhxo/vOWzZZbGysTjnlFFf4356bvfbGG290WYgHy/rDsv8sU9BYFpllJlkf2aQOc+fOdd9za6tlHZY2m8nz/fffV/Xq1d1sn5ZZZtmR3bt3d0Ni7ftg/f/000/vM8mBsWwq39BYuz6/nJwc97zsb9g3nNf63zIi//rrL/3www966qmn3DO2WVQBACixgwp7AQCAQ87AMqeffro/u2jvrJaDzcD6+uuv/e9z66237nPfefPmeWrVquXO33nnnQXOPfLII/6MpjFjxhQ4Z1lC55xzjv/ehWVgPf300/7zjz32WIFz1g7LwPCd/+KLL/znVq9e7T/+5ZdfFvr8rN2WAeWzcuVK/2seeOABz6EqTgbW66+/7r/G+uBQMrAsU8V3za5du0otA2vDhg2eatWquXPHH3+8Jzk5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i5kzZ4527Nih3r17q3LlyhH9TSIDC6VmZ5W8oZWZa6bzZAEAAAAABWpS33bbbW77q6++coXQfcs777zjjtuEabb/4osv6vPPP3dBrfbt22vgwIH67rvv3DV79uzR/fffr9atW6tu3brq06ePG9aXmJioYcOGaePGjcUuvJ7//b7//ntXVqhjx47q37+/C1CdfvrpSk5OLrN7GauzffTRR7sgl31Oqw1mn9mGW950003unitXroz4bxIZWCg12fUOk1K8EfTqSd6oOgAAAABgX5adk5KefeDfWVlZbh174EsDolpCrKsPfTA6d+6s5cuXu0wsC+jkL+Jugar8Jk6cqCeffFIJCQnq3r27qlevrnr16vkzle666y7XjkaNGrmMJwsMWaaWBb0s6+mvv/5yry2u33//XU8//bQqVKigww47TKmpqe5+X3zxha644gq9++67ZXIvK2pvQat169a5LDILetnrFi9erKFDh7pi9/AigIVSU611H2mpd7t5xhJlZ2crNpavGAAAAADszYJX3e79odw9mNl3H6/qFeMO6rUPPPCADj/8cFfE/ZRTTtlvEfc///xTF110kZ555pl9hgXaUDq716hRo1wGls+mTZv0z3/+Uz/99JPGjBmjCy+8sNhtmzZtmkaPHq3//ve//qF63377rWvrhx9+qOeee85leJX2vR588EEXvLKMK2tzhw4dFBcX54ZYnnvuufrtt9+K/RnCHUMIUWqaduqnXI83El81ao/WLCMLCwAAAABQcs2bN9fLL79caE0ry966/fbbXfDKakZZwOjXX391mVcnnXSSP4OrJLp06aJnn322QJ2pf/zjHxo0aJBycnK0cOHCMrnXJ5984tavvvqqC175WOaVDauMj48v0ecIZ6THoNQkVKmhNTGN1DR3ndvfsnCKWrY/jCcMAAAAACiRAQMG7Dd488ILL7gMp9WrVxd63gqql4TVqYqOji40kGZSUlJK/V42tNACcBUrVnSf10Yx5WfDKq2Y+/z580v0WcIVASyUqs2V26vpLm8AK3f9DJ4uAAAAABRRS8qG4xW7BlbcwQ3bK4t2B8L+Zux7/PHHdcMNN7jtWrVquUCPZTtZ0MiCQtOnT1fW38+tuKpUqVLocV8gymqWlfa90tPT3drqexVVV6xGjRrFft9wRwALpSqrbldp109uu8ZOosQAAAAAUBgLWBSnllTW37/arS5SODjYAvD5Pf/88/7hd2eccUaBc1b/6rjjjlN5YHWwrGD75s2bXVaWZWLlZ4GupUv/LjQNamChdFVuljdksHnWcmVkZvCIAQAAAACOBWxKOiRvb1asvVKlSjr11FP3CfhY7anywmYd7Nevn2u3DYfc2//+9z8X3IIXGVgoVfVaHaasn2MUF5WjilGZWrJwhtp2689TBgAAAACoZcuW/ln5Xn/9dVcXygI5LVq0cEMBi6Njx46aMWOGK4z+r3/9y2UyrVq1yt1vzpw55eopX3vttZowYYKbjXDlypXuM1kmlh2zOl9WBywzM7NUMtfKO2YhRKmKrVBRq2Pz/tHZvmQqTxgAAAAA4A9gDR48WMnJyRo5cqSOPfZYt28z7hXXI4884jK5fvzxRw0fPlwnnHCCLr/8ci1ZskRPPfVUuXrSp5xyim6++Wa3/f777+v//u//3LBIyyQbNmyYDj/8cHcuISFBkY4MLJS6bVU7qPXOFW47asNfPGEAAAAAgN/YsWP14osvaurUqUpKSlJubq4/+6pu3boaNGiQWrVqVeQTO+aYY7Ro0SKXoWRry07q3r27C4jZTH72+q5du+5TDN2Ot2vXrsDxA72fXW/na9asWSb3Mg8//LCGDh2qt99+W+vWrVPt2rV18skn69xzz1Xjxo3d56tXr17Ef4OiPCUppY8y1alTJ7cuz1Nkbtu2TYt/eE0DlvzH7S+LaanWd84MdrNQBv1s7B9WhDf6OjLQz5GDvo4M9HPkoK9DmwVlFi9e7A9c+GagKynfbHrhUsQd+7J6YNWqVdunry2gdeGFF7pg3OzZs8vF97gs4xpkYKHUVW/RQ1ri3W6WvVppabtVqVLh04gCAAAAABDJLEhlQwSPPPJINW3a1GWljR8/3j+s8sorrwx2E0MCASyUujrNOyvdE6eEqCxXzH3ZvGnq0OcYnjQAAAAAAHuxGRWt/tWHH364z7O5+OKL3dBIEMBCGYiJi9fq+NZql7XQ7e9cNk0igAUAAAAAwD5sqOBpp52mX375RatXr3bHrI7WmWeeqYEDB/LE/kYGFspEco0u0hZvACtm0yyeMgAAAAAAhYiJidFZZ53lgliGemeFO7gqcsABxDbp6d+uu6v8FqUHAAAAAADBRwALZaJeh37+7aa565WSvIMnDQAAAAAADgoBLJSJhi07a5cqer9kUR6tmTuZJw0AAAAAAA4KASyUiajoGK2p0M6/v2vFHzxpAAAAAABwUAhgoczsrtXVvx2/hULuAAAAAADg4BDAQpmJb5pXyL1BqndGQgAAAAAAgJIigIUy06hTf/92Q88W7diynqcNAAAAAABKjAAWykydRq21Q9X8+2vnT+FpAwAAAACAEiOAhTITFR2tdRXb+/fTVv7J0wYAAAAAACVGAAtlKq12N/92xW2zedoAAAAAAKDECGChTFVq0du/3ThtoTy5uTxxAAAAAECZmTp1qjp37qy77767WMcP5LLLLnOvW7ZsmcrStGnT1L179xK3L1IQwEKZatRpgH+7tnZq64ZVPHEAAAAAQJnZvXu35s+fr/Xr1xfr+IGsWrXKvS49PV1lydq3YMGCErcvUsQGuwEIb7XqNdYm1VF9bXX76xdMUt3GLYPdLAAAAABAhOnXr5/mzp2rmjVrBuX9J06cqNGjR+ucc87RnXfeuc/5ww8/XH/99Zfq1asXlPaFOjKwUOY2VO7g385YPZ0nDgAAAAAIuMqVK7uhgA0bNgzK009JSdlvBliw2xfqCGChzGXU7erfrkIhdwAAAAAAUEIEsFDmqrbs499umrGEQu4AAAAAEIHeeOMNl2H05JNPFnnNXXfd5a75/PPP/ce2bNmip556yg2969u3r/r3769//etfGj9+fIne/0BF3L/44gsNGzZMPXv21JAhQ/Tcc88pOzu7yPuVpF1XX321rrjiCrf90UcfuXb4lldeeaVYRdynTp2qSy+9VAMGDFCvXr1cW998881C2/j999+7ez/++OOudtejjz6qY445xn22s846Sz/99JPKG2pgocw16TxA+tm7XU2p2rByoRq26sSTBwAAAIAIctxxx2nUqFEu6GMBnejogjk1Fmh59tlnlZGRocGDB7tja9asUatWrfYJ0kyZMsUFb+644w7df//9xXp/XxF3qzW1tyuvvFLPP/98gWM//PCDxo4dK4/Hs8/1JW3X6tWr3WtMUlKSW/IHwg5UxP3uu+/WfffdV+DYjBkzXKDPAmDffvutatSo4T+3c+dO91kXL17san/NmjXLf87qbH366ad6++239X//938qLwhgocxVr1Fba6Iaqqlng9vfuHAyASwAAAAAkc2CIunJB77OFyDJDpGf7wnVpaiog3ppkyZNdPzxx7vsoB9//NFl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xH1CnS9wZsMoyytfYfxATfuZnJaprEdaqXaUdwbCLae8p7o9TgrIe0eyQPczgoe+jgz0c+SgryMD/Rw56OvIQD9HjnDo605lGNeIVhkqraBTJASvcHCqV4rXstg2/v0dS6fyKAEAAAAACDNlGsAqzFlnneWG9gGlZWdiZ/929EZvgX4AAAAAABA+Ah7A+uSTT1zdKJsd0Aqf22x+wKGIatzDv107pfwOvwQAAAAAACESwPrss890zDHH6M8//9Tw4cPd7H7//e9/lZSUFOimIEzUbd/Pv10zd4dydq4PansAAAAAAEA5D2Cdfvrp+umnn7Rw4UJdddVVSklJ0c0336wmTZroyiuv1NKlSwPdJJRz7Vq10gZPLf/+lkUMUQUAAAAAIJwEPIDl065dOz399NPasGGDXnnlFbVp00bPP/+8O37KKafol19+CVbTUM5Uio/Viri2/v3kZX8EtT0AAAAAACBMAlg+lSpV0qhRozRz5kz9/vvvatu2rb766isdffTR6tq1q1588UWlp6cHu5kIcck1u/i34zbPDGpbAAAAAABAmAWwTHJysp555hldfPHFWrx4saKionTkkUdq7dq1Gj16tDp27OiGHAJFiW/ay79dd/dCyePhYQEAAAAAECaCGsCaM2eOLrvsMjVq1EhXX3211q1bp8svv1wLFizQxIkTtWLFCjeccOXKla4+FlCU+u0P929X9exW1rblPCwAAAAAAMJEwANYWVlZGjNmjAYOHKhu3brp5ZdfVu3atd1MhBbAeuGFF9S+fXt3bY0aNVx9LDN16tRANxXlSNvmjbXSU9+/v2khhdwBAAAAAAgXsYF+w6ZNm2rTpk1u+4gjjtA111yj0047TTExMYVeX69ePbdOS0sLaDtRvlSIjdHqCu3VItP73Upd+ac08IJgNwsAAAAAAJTHANaOHTt0wQUXuCGDPXr0KNZrmJEQxbG7dldpwwS3XWHLbB4aAAAAAABhIuABrDVr1vizqorrqKOOKrP2IHxUbNZL2uDdrp+6WMrNkaILz+wDAAAAAADlR8ADWPmDV+np6Zo/f7527typxMREderUSQkJCYFuEsJEww6HK3tytGKjclVR6crYuEAVGnUJdrMAAAAAAEB5nIUwKSlJl156qSvS3qtXLx177LFubft23M4DJdWmUR0tU2P/PoXcAQAAAAAID9HBqIHV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zBg58cQTZdddd+31OnC3evVq8/qt145+5tH3P71u9DXS7bq54447ZNGiRWFP59y5c+Xoo4923afvEc8++6z5ndLn1vd0bbesrKywzxdLHXRsyZIlcsstt5j7+l6tr5Nu6uvr5ZlnnpFPP/1UGhoaZOedd5ZTTjlFJkyYEPa541Wnz7CALlq8eLE1ePBgS3+dnCUvL896/vnnOb8JaPTo0SHt5SwLFiwIqePxeKxTTjnF9fgjjzzSamho6JY66LxjjjnGSktLCzi/48aNi1inqanJOu6441zb5oQTTrCam5t7rQ7c/e1vf7PKyspCzuPLL78c9pT993//d8Rr/Re/+IVrvVdeecXKz88POV7//Y8//rjb6iDUVVddZWVkZLi2l26/+eabXU/bjh07rP3228+13nnnnWe1tbX1Wh2EWrlypTV8+PCw1+bMmTOt9evXh9TTcxzpmr7oootcT/dDDz1kZWZmhhyvnwe+/vrrbquDUB988IFVXFwcts1OOukk189DGzdutHbZZZeQ41NTU61rr73W9VTHqw7cHX744WHbeciQIdbChQtD6hx//PERr+nbbrvN9d+66aabTBsFHz9lyhRr3bp13VYHHdPPstOnT/efz3nz5rke991331ljx451fW+/7777erVOX0KAhS7Zvn27NWjQIHNR7L777tb9999vPfbYY9bs2bPNNv3gs3z5cs5yggZYzz77rAkZg8uWLVtC6lxxxRWmTnZ2tnXJJZdYTz31lPlDy/6D9ayzzuqWOoitPYuKikxQdOGFF0YVYP32t7/1B836Rqttc9lll1k5OTlh/wiKVx24u/fee62UlBTzWqvX06RJk6IOsH71q1+5Xuuffvqp6wcfvWa13k9+8hPr0UcftR544AFrzz33NNtKSkqsioqKLteBOw0V9Y/dU0891brxxhutJ5980rrrrrv851LL/PnzQ+r9/Oc/N/tKS0ut66+/3vrLX/5inX/++f5wW5+jt+og1JIlS8z1vPfee1uXXnqp//PTOeecY2VlZZlzqW0eHAjaAZa+Brhd0//85z9D/q2PPvrI/0ertt8TTzxh3XPPPdbEiRP97xeNjY1drgN32i76uUfPo33NaHvrF3z2daPtGWzWrFlm34gRI6xbb73V1DvjjDPM702414F41YG7MWPGWLvttpv5LKZtrNfN1Vdf7f/cre+F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V5jtZWVlVm1tbZfqoOuWLFlizu24cePCHtPQ0GANHTrUHHfJJZf4fxf09ne/+53ZPmLECKupqSnudRC9Aw880JzDl19+2XX/tm3brHvuuceqrKwM2N7S0mI9+OCDVmZmpqk/f/78gP033nij2T569Ghr7dq1/u1ffvmlNWDAALPvySef7HIduNu6dau15557mnN29tlnh7xWu9m8ebOVl5dn6tx9993+7c3NzdYvfvELs32PPfbolToI709/+pOVkpJiDR8+3Prmm286PFWrVq2yHnnkkZD3TX2tvemmm8xzaRt88MEHAfvPOeccs3233XYzv1+2BQsW+F8H3nvvvS7XgbsHHnjAtX0rKiqs//qv/zLnsri4OOBz14oVK6y0tDTTps7XaG37Qw891NQ58sgjA54vXnXg7rPPPjN/FwV/ptHX8Ndff90qKSkx5/P+++/371u2bJn19NNPB7S9qq6utv7whz+Y41NTU61vv/02YP+cOXPMvoMPPtiqqanxb3/hhRdMW2qdr776qst1EEqvmeeff961HH300eYcH3/88ebxRx995K+n93VfRkaG9fe//z3gs5r9nn/GGWcE/FvxqtPXEGChS/RF+bDDDjMXQ3p6uvmDavbs2VZubq7ZNmHCBPMijMQxb9480zalpaXWXnvtZf3sZz+zZsyY4f9Aqm9gL774Ykg9ffPVfXqMBlNab/z48eaxlqeeeqpb6qDz9A8afbPUcsghh5hzq39k2tu0BH94fu655/x/7Oy8886mbezQWbe7hSLxqgN3W7ZsCWjTgQMHmvO4zz77+LfdcsstAaG07tdre8qUKdbhhx9uHXTQQdbgwYP916D+YRIckNTV1ZnjdX9OTo55jdd6+hqv2/R13hlIx1oH7rRN9JxlZ2cHtLeznHLKKSH1NFCy23XatGnmWtNgxP4d+Pjjj3utDkJp+GOfx5kzZ4Zt6zfffNNfZ9GiRf5rbPr06eZ3Zb/99vP/YazlzDPPDPm3Nm3a5G8j/cLxiCOOsPbdd1//a7Pb71MsdeBOP2PpORszZox1wAEHmGtG29z+3KXn1C3gv+yyy/ztqsHwUUcdZb74s9vk66+/7rU6CKUBoH3ONPjVdtb3Qfs60qKfu50Bl34G0u35+fmmjp57fU/X57DrXHnllSH/1sqVK/1fDunnea1nhxNafv/733dLHXTORRdd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"/*LOSS_PNG_END*/;
+function lossFallback(img) {
+  const q = (img.dataset.fallbacks || "").split("|").filter(Boolean);
+  if (!q.length) { img.closest(".figure").classList.add("missing"); return; }
+  img.dataset.fallbacks = q.slice(1).join("|");
+  img.src = q[0] === "@embedded" ? window.LOSS_PNG : q[0];
+}
+</script>
+</head>
+<body>
+<div id="viewport"><div id="stage">
+
+<!-- ============================================================ 1 -->
+<section class="slide title" data-title="Title">
+  <div class="frame"></div>
+  <div class="tag">DSC 2026 · live tutorial</div>
+  <h1>Let's make <em>NjegošGPT</em>!</h1>
+  <div class="sub">GPT from scratch, character by character</div>
+  <div class="who"><span>Mitar Perović</span><span class="dot"></span><span class="muted">Data Science Conference 2026</span></div>
+  <svg class="rough ridge" data-diagram="ridge" viewBox="0 0 1920 360" preserveAspectRatio="none"></svg>
+  <aside class="notes">
+    <p><b>[0:30 | total 0:30]</b></p>
+    <p>Welcome. In one hour we build a GPT from scratch: from the raw text of The Mountain Wreath (Gorski vijenac) to a model that writes verses in decasyllable (deseterac), in the Ijekavian dialect.</p>
+    <p>Everything runs live, the code is small (a few hundred lines) and modeled on Karpathy's nanoGPT.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 2 -->
+<section class="slide" data-title="About me + plan">
+  <div class="kicker">Intro</div>
+  <h2>Who I am and what's ahead</h2>
+  <div class="body cols c46">
+    <div class="stack">
+      <div class="ph card" id="speaker-bio" data-ph="speaker-bio" style="flex:1">
+        <h3>Mitar Perović</h3>
+        <ul class="list small">
+          <li>CTO &amp; Co-founder at <b>Recrewty</b></li>
+          <li>I pretrain and evaluate language models for Balkan languages: ModernBERTic, BalkanBench</li>
+          <li>linkedin.com/in/perovicmitar · github.com/permitt</li>
+        </ul>
+      </div>
+      <div class="callout gold">The code is open: clone the repo and follow along live.</div>
+    </div>
+    <ol class="agenda">
+      <li>Why Njegoš and what we're building <span class="m">5 min</span></li>
+      <li>Data and tokenization <span class="m">5 min</span></li>
+      <li>Language modeling and the bigram <span class="m">5 min</span></li>
+      <li>Self-attention from scratch <span class="m">11 min</span></li>
+      <li>The Transformer block and the full GPT <span class="m">4 min</span></li>
+      <li><span>Code: <code class="i">model.py</code></span> <span class="m">5 min</span></li>
+      <li class="demo">Training <span class="m">10 min</span></li>
+      <li>Sampling and results <span class="m">7 min</span></li>
+      <li>What's next + Q&amp;A <span class="m">8 min</span></li>
+    </ol>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 2:00]</b></p>
+    <p>Briefly about myself. Then the plan: the first 15 minutes are data and intuition, then the core (attention and the transformer), then code and live training, and results at the end.</p>
+    <p>Emphasize: you don't need any prior knowledge of transformers, just PyTorch at the level of <i>tensor @ tensor</i>.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 3 -->
+<section class="slide" data-title="Why Njegoš?">
+  <div class="kicker">Intro · Njegoš</div>
+  <h2>Why <em>Njegoš</em>?</h2>
+  <div class="body cols">
+    <div class="stack">
+      <p class="lead"><b>Petar II Petrović Njegoš</b> (1813–1851)<br>prince-bishop and ruler of Montenegro, poet and philosopher.</p>
+      <ul class="list">
+        <li><b>Luča mikrokozma</b> (The Ray of the Microcosm, 1845): a cosmological epic on the fall of man</li>
+        <li><b>Gorski vijenac</b> (The Mountain Wreath, 1847): a verse drama, ~2,800 lines in decasyllable</li>
+        <li><b>Lažni car Šćepan Mali</b> (The False Tsar Stephen the Little, 1851)</li>
+        <li>A distinctive style: decasyllable (deseterac), Ijekavian dialect, archaisms, gnomic verses</li>
+      </ul>
+    </div>
+    <div class="stack" style="justify-content:center;gap:56px">
+      <blockquote class="q">Neka bude borba neprestana,<br>neka bude što biti ne može.<span class="en">Let the struggle be unceasing,<br>let there be what cannot be.</span><cite>The Mountain Wreath · Bishop Danilo</cite></blockquote>
+      <blockquote class="q">Blago tome ko dovijek živi,<br>imao se rašta i roditi!<span class="en">Blessed is he who lives forever,<br>he had a reason to be born!</span><cite>The Mountain Wreath · Vuk Mićunović</cite></blockquote>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 3:30]</b></p>
+    <p>Njegoš: born 1813 in Njeguši, died 1851 in Cetinje; prince-bishop and ruler from 1830. The Ray of the Microcosm 1845, The Mountain Wreath 1847 (Vienna), The False Tsar Stephen the Little 1851.</p>
+    <p>The quotes are verified on Wikisource: “Neka bude borba neprestana…” is spoken by Bishop Danilo, “Blago tome ko dovijek živi…” by Vuk Mićunović.</p>
+    <p>Joke: “let there be what cannot be” is also a good motto for training a transformer on 1.4 MB of text.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 4 -->
+<section class="slide" data-title="A small, closed corpus">
+  <div class="kicker">Intro · Why a small corpus</div>
+  <h2>A small, closed corpus is <em>ideal</em> for learning</h2>
+  <div class="body cols">
+    <div class="stack" style="gap:46px;justify-content:center">
+      <div class="stat"><span class="v">~1.4M</span><span class="l">characters in total (the whole corpus fits in RAM, even in L2 cache)</span></div>
+      <div class="stat"><span class="v gold">&lt; 100</span><span class="l">distinct characters: a vocabulary with no tokenizer training</span></div>
+      <div class="stat"><span class="v red">minutes</span><span class="l">of training from scratch on a single GPU</span></div>
+    </div>
+    <ul class="list" style="justify-content:center">
+      <li><b>Consistent style</b>: decasyllable and Ijekavian, so you can tell at a glance whether the model has learned</li>
+      <li><b>Fast iteration</b>: change a hyperparameter, see the effect in a few minutes</li>
+      <li><b>Real problems in miniature</b>: overfitting, choosing the context length, sampling</li>
+      <li>The same architecture as GPT-2; the difference is in <b>scale</b>, not in the idea</li>
+    </ul>
+  </div>
+  <aside class="notes">
+    <p><b>[0:45 | total 4:15]</b></p>
+    <p>GPT-3 was trained on ~300 billion tokens. We have about 1.4 million characters. That is both an advantage (fast) and a challenge (overfitting); we come back to it in the training section.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 5 -->
+<section class="slide" data-title="Goal">
+  <div class="kicker">Intro · Goal</div>
+  <h2>Goal: a model that writes <em>like Njegoš</em></h2>
+  <div class="body stack" style="gap:30px">
+    <svg class="rough" data-diagram="deseterac" viewBox="0 0 1660 190"></svg>
+    <div class="cols" style="gap:40px">
+      <div class="stack" style="gap:12px">
+        <span class="pill">before training</span>
+        <pre class="sample card" style="flex:1">ŽaćM;?kđ zrUjČo,šp
+vbž!Ći ldNuc;eđĐ ?mK
+šjhAž.pćr ofZ!ĆŠ;tg
+Hđ,uv bnČ?ež ŠJliP;</pre>
+      </div>
+      <div class="stack" style="gap:12px">
+        <span class="pill gold">after training</span>
+        <pre class="sample verse ph" data-ph="copy of #results-sample" data-mirror="results-sample" style="flex:1"></pre>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[0:45 | total 5:00]</b></p>
+    <p>Decasyllable (deseterac): 10 syllables, with a caesura after the fourth (4 + 6). The model knows nothing about syllables: it sees only characters and has to “discover” the rhythm on its own.</p>
+    <p>Left: random sampling from an untrained model. Right: real output (copied automatically from #results-sample on the Results slide).</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 6 -->
+<section class="slide" data-title="Data">
+  <div class="kicker">Data</div>
+  <h2>Data: from Wikisource to <code class="i" style="font-size:.6em;vertical-align:middle">njegos.txt</code></h2>
+  <div class="body stack" style="gap:44px">
+    <svg class="rough" data-diagram="pipeline" viewBox="0 0 1660 200"></svg>
+    <div class="cols c64" style="gap:56px">
+      <ul class="list small">
+        <li><b>Sources:</b> Wikisource (sr.wikisource.org, Cyrillic) + the electronic Collected Works (ppnjegos.com) for Ogledalo srpsko (The Serbian Mirror), letters and prose</li>
+        <li><b>Cleaning:</b> strip titles, footnotes, wiki markup; normalize whitespace and quotation marks; keep newlines (verse = line)</li>
+        <li><b>Transliteration</b> Cyrillic → Latin, character by character</li>
+        <li><b>90% / 10%</b> split into training and validation (the end of the text is validation)</li>
+      </ul>
+      <div class="ph card" id="dataset-stats" data-ph="dataset-stats" style="white-space:nowrap">
+        <table class="t">
+          <tr><td>works</td><td class="num">poems · dramas · epics · letters</td></tr>
+          <tr><td>characters</td><td class="num">1,401,864</td></tr>
+          <tr><td>verses (lines)</td><td class="num">38,947</td></tr>
+          <tr><td>vocabulary size V</td><td class="num">81</td></tr>
+          <tr><td>training / validation</td><td class="num">90% / 10%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 6:30]</b></p>
+    <p>Show <code>prepare_data.py</code> briefly if there is time. Important: we keep newlines, because the verse line is the basic unit of form. The model will learn when to “break the line”.</p>
+    <p>The stats (#dataset-stats) come from the script output.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 7 -->
+<section class="slide" data-title="Cyrillic → Latin">
+  <div class="kicker">Data · Transliteration</div>
+  <h2>Cyrillic → Latin</h2>
+  <div class="body cols c73" style="gap:50px">
+    <div class="fig"><svg class="rough" data-diagram="translit" viewBox="0 0 1060 560"></svg></div>
+    <div class="stack" style="justify-content:center">
+      <p><span class="red">■</span> <b>three letters become two characters</b>: љ→lj, њ→nj, џ→dž</p>
+      <p><span class="gold">■</span> letters with diacritics stay a single character</p>
+      <div class="callout" style="font-size:25px">Cyrillic → Latin is <b>deterministic</b>. The reverse is not: <i>injekcija</i> (n+j), <i>nadživjeti</i> (d+ž).</div>
+      <p class="muted" style="font-size:25px">For a char-level model this means: “lj” and “nj” are two tokens, so the model has to learn them as a pair.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:00 | total 7:30]</b></p>
+    <p>Why Latin script? The audience reads it more easily on slides, and the model is exactly the same. We could have kept Cyrillic too: char-level doesn't care.</p>
+    <p>Fun fact: Cyrillic is phonetically cleaner for the model (one sound = one character). In Latin script “lj/nj/dž” are two tokens, so the sequence is slightly longer.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 8 -->
+<section class="slide" data-title="Tokenization">
+  <div class="kicker">Tokenization</div>
+  <h2><em>Character</em>-level tokenization</h2>
+  <div class="body stack" style="gap:28px">
+    <svg class="rough" data-diagram="tokens" viewBox="0 0 1660 420"></svg>
+    <pre class="code" data-file="train.py"><code class="language-python">chars = sorted(set(text))                      # all distinct characters = vocabulary
+stoi = {ch: i for i, ch in enumerate(chars)}   # string -> int
+itos = {i: ch for i, ch in enumerate(chars)}   # int -> string
+encode = lambda s: [stoi[c] for c in s]        # "Gorski" -> [16, 46, 48, ...]
+decode = lambda ids: "".join(itos[i] for i in ids)</code></pre>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 9:00]</b></p>
+    <p>The tokenizer here is 5 lines. The vocabulary is all the distinct characters in the corpus, sorted. An ID is just the index in that sorted list. The numbers on the diagram are illustrative; the real ones depend on the corpus.</p>
+    <p>In train.py encode/decode are regular functions; here they are lambdas for brevity.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 9 -->
+<section class="slide" data-title="Characters vs BPE">
+  <div class="kicker">Tokenization · Trade-offs</div>
+  <h2>Characters or <em>BPE</em>?</h2>
+  <div class="body cols c64" style="gap:56px">
+    <table class="t">
+      <tr><th></th><th>characters</th><th>BPE (GPT-2)</th></tr>
+      <tr><td>vocabulary size</td><td class="win">81</td><td>50,257</td></tr>
+      <tr><td>tokenizer training</td><td class="win">not needed</td><td>needed (or off-the-shelf)</td></tr>
+      <tr><td>unknown words</td><td class="win">never</td><td>byte fallback</td></tr>
+      <tr><td>sequence length</td><td>long</td><td class="win">~3–4× shorter</td></tr>
+      <tr><td>256 tokens of context</td><td>~8–9 verses</td><td class="win">~30 verses</td></tr>
+      <tr><td>embedding + lm_head</td><td class="win">~30K params</td><td>~19M params (n=384)</td></tr>
+    </table>
+    <div class="stack" style="justify-content:center">
+      <div class="callout">For a small corpus and a small model, characters win: no token shows up only twice.</div>
+      <div class="callout gold">BPE pays off when the corpus is large: the same amount of compute “sees” more text.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:00 | total 10:00]</b></p>
+    <p>With a 50K-token BPE and a corpus of about 1.4 million characters, most tokens would appear only a handful of times, so the embeddings would have nothing to learn from. Plus: GPT-2's BPE was trained on English and segments our language poorly.</p>
+    <p>A decasyllabic verse is ~28–30 characters including the newline, so 256 characters ≈ 8–9 verses of context.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 10 -->
+<section class="slide" data-title="Next-token prediction">
+  <div class="kicker">Language modeling</div>
+  <h2>The task: predict the <em>next</em> character</h2>
+  <div class="body stack" style="gap:26px">
+    <svg class="rough" data-diagram="nexttok" viewBox="0 0 1660 380"></svg>
+    <div class="cols c46" style="gap:56px">
+      <div class="examples"><span class="k">context     target</span>
+N         → <span class="t">e</span>
+Ne        → <span class="t">k</span>
+Nek       → <span class="t">a</span>
+…
+Neka·bud  → <span class="t">e</span></div>
+      <ul class="list small" style="justify-content:center">
+        <li>Input <code class="i">x</code> and target <code class="i">y</code> are the same text, <b>shifted by one</b></li>
+        <li>One chunk of length <code class="i">block_size</code> = <b>block_size examples</b> at once (every position is a separate example)</li>
+        <li>The model never sees the future: at position <i>t</i> it knows only <i>x</i><sub>≤t</sub></li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 12:00]</b></p>
+    <p>This is the whole “trick” of GPT: self-supervised learning, where the labels are the text itself shifted by one.</p>
+    <p>On the diagram block_size = 8 for clarity; ours is 256. From one chunk of 8 we get 8 examples: from a context of length 1 up to a context of length 8. That is why the model can also generate from a short prompt.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 11 -->
+<section class="slide" data-title="Batch and cross-entropy">
+  <div class="kicker">Language modeling · Batch and loss</div>
+  <h2>Batch, <em>cross-entropy</em> and the initial loss</h2>
+  <div class="body cols" style="gap:44px;grid-template-columns:1.8fr 1fr">
+    <pre class="code sm" data-file="train.py" style="font-size:19px"><code class="language-python">n = int(0.9 * len(data))
+train_data, val_data = data[:n], data[n:]   # 90% / 10%
+
+def get_batch(split):
+    d = train_data if split == "train" else val_data
+    ix = torch.randint(len(d) - block_size, (batch_size,))  # random starts
+    x = torch.stack([d[i : i + block_size] for i in ix])
+    y = torch.stack([d[i + 1 : i + 1 + block_size] for i in ix])  # shifted by 1
+    return x, y  # both (B, T) = (64, 256)</code></pre>
+    <div class="stack" style="gap:30px;justify-content:center">
+      <div class="tex big-formula" style="font-size:36px" data-tex="\mathcal{L} = -\frac{1}{BT}\sum_{b,t} \log p_\theta\!\left(y_{b,t} \mid x_{b,\le t}\right)"></div>
+      <div class="card">
+        <h3>Sanity check at the start</h3>
+        <p style="font-size:27px">An untrained model ≈ uniform distribution, <span class="tex" data-tex="p = 1/V"></span>, so</p>
+        <div class="tex big-formula" style="font-size:40px" data-tex="\mathcal{L}_0 \approx \ln V \;\;\; (V{=}81 \Rightarrow 4.39)"></div>
+        <p class="muted" style="font-size:23px">If the initial loss is much higher: the initialization is bad (the model is “confidently wrong”).</p>
+      </div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 13:30]</b></p>
+    <p>B = 64 chunks, T = 256 positions: 16,384 predictions per step. Cross-entropy is the average negative log-probability of the correct next character.</p>
+    <p>This is the first number we look at in the training log: if V is around 80, we expect ~4.4 at step 0. That is why the GPT-2 init with std 0.02 matters: the logits are close to zero, so the distribution is almost uniform.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 12 -->
+<section class="slide" data-title="Bigram baseline">
+  <div class="kicker">Language modeling · Baseline</div>
+  <h2>Bigram: the dumbest model that works</h2>
+  <div class="body cols c46" style="gap:50px">
+    <div class="fig"><svg class="rough" data-diagram="bigram" viewBox="0 0 640 600"></svg></div>
+    <div class="stack" style="gap:24px">
+      <pre class="code sm"><code class="language-python">class Bigram(nn.Module):
+    def __init__(self, V):
+        super().__init__()
+        self.table = nn.Embedding(V, V)  # row = current character
+
+    def forward(self, idx):
+        return self.table(idx)  # logits for the next one, (B, T, V)</code></pre>
+      <ul class="list small">
+        <li>Looks at <b>only the previous</b> character: a V×V table</li>
+        <li>Learns syllables and frequent pairs (“je”, “nj”, “a·”), but not words</li>
+        <li>It lacks <b>communication</b> with the rest of the context → attention</li>
+      </ul>
+      <pre class="sample card" style="font-size:21px;padding:18px 24px">Ta ne dasi bo, kroje
+mojeg ni vi sta ješe
+gne jesvoj oćeše, Bo</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 15:00]</b></p>
+    <p>The bigram is our floor: each row of the table holds the logits for the next character, given only the current one. The output on the right is illustrative: it looks like language but means nothing.</p>
+    <p>Transition: to know what comes after “Neka bu”, the model has to look back more than one character. Tokens have to “talk” to each other.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 13 -->
+<section class="slide" data-title="Tokens communicate">
+  <div class="kicker">Self-attention · 1/6</div>
+  <h2>The idea: tokens <em>communicate</em>, but only with the past</h2>
+  <div class="body stack" style="gap:30px">
+    <svg class="rough" data-diagram="comm" viewBox="0 0 1660 400"></svg>
+    <div class="cols" style="gap:56px">
+      <div class="callout">The token at position <i>t</i> gathers information from positions <b>1…t</b>. The future is off-limits, because that is what we are predicting.</div>
+      <div class="callout gold">The simplest communication: the <b>average</b> of all previous vectors. It loses the order, but it's a start.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 16:30]</b></p>
+    <p>Following Karpathy: each token is a vector of dimension C. We want the token “b” to get information from “N, e, k, a, space”. The simplest way: take the average of their vectors. That is a “bag of words”, but it is enough to introduce the matrix trick.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 14 -->
+<section class="slide" data-title="The tril matrix trick">
+  <div class="kicker">Self-attention · 2/6</div>
+  <h2>The trick: averaging the past = <em>matrix multiplication</em></h2>
+  <div class="body stack" style="gap:24px">
+    <svg class="rough" data-diagram="tril" viewBox="0 0 1660 400"></svg>
+    <div class="cols" style="gap:40px">
+      <pre class="code sm"><code class="language-python">tril = torch.tril(torch.ones(T, T))
+wei = tril / tril.sum(1, keepdim=True)  # rows sum to 1
+out = wei @ x  # (T, T) @ (B, T, C) -> (B, T, C)</code></pre>
+      <pre class="code sm"><code class="language-python"># the same, but via softmax:
+wei = torch.zeros(T, T)    # later: learned affinities!
+wei = wei.masked_fill(tril == 0, float("-inf"))
+wei = F.softmax(wei, dim=-1)</code></pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:30 | total 19:00]</b></p>
+    <p>A lower-triangular matrix of ones, normalized by rows: row t has 1/t in its first t entries. Multiply it by x and you get the average of the past for all positions at once, in a single matmul.</p>
+    <p>The right-hand version is the key one: we start from zeros, put -inf where the future is, and softmax turns -inf into 0. The result is the same, but now we can replace the zeros with <b>learned affinities</b>: how interesting token j is to token t. That is self-attention.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 15 -->
+<section class="slide" data-title="Query, Key, Value">
+  <div class="kicker">Self-attention · 3/6</div>
+  <h2>Query, Key, Value</h2>
+  <div class="body cols c64" style="gap:40px">
+    <div class="fig"><svg class="rough" data-diagram="qkv" viewBox="0 0 1040 600"></svg></div>
+    <div class="stack" style="justify-content:center;gap:28px">
+      <div><span class="pill">query</span><p style="margin-top:10px"><b>“What am I looking for?”</b> <span class="muted">e.g. a vowel before me</span></p></div>
+      <div><span class="pill gold">key</span><p style="margin-top:10px"><b>“What do I offer?”</b> <span class="muted">e.g. I am a space</span></p></div>
+      <div><span class="pill" style="border-color:var(--ink);color:var(--ink)">value</span><p style="margin-top:10px"><b>“What I pass along”</b> if someone picks me</p></div>
+      <div class="callout" style="font-size:25px">Affinity = <span class="tex" data-tex="q_t \cdot k_j"></span>. All three are just <code class="i">nn.Linear</code> over the same <code class="i">x</code>.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:30 | total 21:30]</b></p>
+    <p>Each token emits three vectors. Query: what I am interested in. Key: what I contain. When one token's query matches another's key (a large dot product), the affinity is high.</p>
+    <p>On the diagram: the token “b” asks, the others answer with their keys; the softmax of the affinities gives the weights, and the output is a weighted sum of the value vectors. The value is separate from the key: what you find me by does not have to be what I hand over to you.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 16 -->
+<section class="slide" data-title="Scaled dot-product attention">
+  <div class="kicker">Self-attention · 4/6</div>
+  <h2>Scaled dot-product attention</h2>
+  <div class="body stack" style="gap:20px">
+    <div class="tex big-formula" style="font-size:58px;padding:0 0 10px" data-tex="\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V"></div>
+    <div class="cols c46" style="gap:50px">
+      <div class="stack" style="justify-content:center;gap:22px">
+        <h3>Why <span class="tex" data-tex="\sqrt{d_k}"></span>?</h3>
+        <p style="font-size:27px">For independent <i>q<sub>i</sub></i>, <i>k<sub>i</sub></i> with variance 1:</p>
+        <div class="tex" style="font-size:34px" data-tex="\mathrm{Var}(q\cdot k) = \textstyle\sum_{i=1}^{d_k} \mathrm{Var}(q_i k_i) = d_k"></div>
+        <p style="font-size:27px">With <span class="tex" data-tex="d_k = 64"></span> the std is 8 → softmax becomes <b>one-hot</b> and gradients vanish. Dividing by <span class="tex" data-tex="\sqrt{d_k}"></span> brings the variance back to 1.</p>
+      </div>
+      <div class="fig"><svg class="rough" data-diagram="sqrtd" viewBox="0 0 1000 440"></svg></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 23:30]</b></p>
+    <p>The formula from “Attention Is All You Need”. The only new detail compared to the previous slide is the scaling.</p>
+    <p>Intuition from the diagram: the same affinities, just 8 times larger. Softmax is exponential, so large numbers give an almost one-hot output: each token would listen to only one other token, and the gradient through the softmax would be almost zero. That is why it matters that the softmax is “diffuse” at init.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 17 -->
+<section class="slide" data-title="Causal mask">
+  <div class="kicker">Self-attention · 5/6</div>
+  <h2>Causal mask: <em>-inf</em> where the future is</h2>
+  <div class="body stack" style="gap:26px">
+    <svg class="rough" data-diagram="mask" viewBox="0 0 1660 470"></svg>
+    <div class="cols c64" style="gap:40px">
+      <pre class="code sm"><code class="language-python">att = att.masked_fill(self.mask[:, :, :T, :T] == 0, float("-inf"))
+att = F.softmax(att, dim=-1)  # exp(-inf) = 0</code></pre>
+      <div class="callout" style="font-size:25px">No mask = <b>encoder</b> (BERT). With the mask = <b>decoder</b> (GPT). Everything else is the same.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:00 | total 24:30]</b></p>
+    <p>The affinity matrix is T×T: the row is the query (who is asking), the column is the key (who is being asked). The upper triangle is the future, so we put -inf there. After the softmax each row sums to 1 and the future has weight 0.</p>
+    <p>The mask is registered as a buffer (torch.tril); it is not a parameter and is not learned.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 18 -->
+<section class="slide" data-title="Multi-head attention">
+  <div class="kicker">Self-attention · 6/6</div>
+  <h2>Multi-head: <em>independent</em> communication channels</h2>
+  <div class="body stack" style="gap:22px">
+    <svg class="rough" data-diagram="mha" viewBox="0 0 1660 520"></svg>
+    <div class="cols" style="gap:40px">
+      <div class="callout"><b>6 heads × 64 = 384</b>: the same compute as one big head, but 6 different “questions” in parallel.</div>
+      <div class="callout gold">E.g. one head tracks the rhythm of the verse, another the rhyme, a third gender and case agreement (in an ideal world).</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 26:00]</b></p>
+    <p>A single Linear (c_attn) produces q, k, v for all heads at once; reshape to (B, nh, T, hs) and attention is computed for all heads in parallel, as a batch dimension. At the end we merge the heads back into C and pass the result through c_proj.</p>
+    <p>The remark on interpreting heads is speculative: a nice story, but in practice heads rarely have such clean roles.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 19 -->
+<section class="slide" data-title="Transformer block">
+  <div class="kicker">Transformer</div>
+  <h2>Transformer block: communication + <em>computation</em></h2>
+  <div class="body cols c46" style="gap:60px">
+    <div class="fig"><svg class="rough" data-diagram="block" viewBox="0 0 700 760" style="max-height:780px;width:auto;height:100%"></svg></div>
+    <ul class="list" style="justify-content:center">
+      <li><b>Attention</b>: tokens exchange information</li>
+      <li><b>MLP</b> (4× wider, GELU): each token “thinks” about what it gathered, independently</li>
+      <li><b>Residual connections</b>: <code class="i">x = x + f(x)</code>, a highway for the gradient from output to input</li>
+      <li><b>Pre-LayerNorm</b>: normalization <i>before</i> the sublayer (GPT-2), more stable training than the original post-LN</li>
+    </ul>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 28:00]</b></p>
+    <p>Block = two sublayers, each of the form x + f(LN(x)). The residual stream is the “main highway” through the network: each block only adds a small correction. At init the blocks are almost the identity, so deep networks train easily. (That is also why we scale the c_proj weights by 1/sqrt(2·n_layer).)</p>
+    <p>The 2017 original has the LN after the addition; GPT-2 moved it in front, with an extra LN at the end of the network.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 20 -->
+<section class="slide" data-title="The full GPT">
+  <div class="kicker">Transformer · GPT</div>
+  <h2>The full GPT in one picture</h2>
+  <div class="body stack" style="gap:26px">
+    <svg class="rough" data-diagram="gpt" viewBox="0 0 1660 500"></svg>
+    <div class="cols" style="gap:40px">
+      <div class="callout"><b>Weight tying</b>: <code class="i">wte</code> and <code class="i">lm_head</code> share the same V×C matrix. Input and output “speak the same language”.</div>
+      <div class="callout gold">For us it saves only ~30K parameters; for GPT-2 (V&nbsp;=&nbsp;50,257, C&nbsp;=&nbsp;768) a full <b>38.6M</b>.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 30:00]</b></p>
+    <p>The token embedding says WHAT the token is, the positional embedding says WHERE it is. We add them (we do not concatenate). Positions are learned, not sinusoidal. Then N blocks, a final LayerNorm and lm_head, which returns logits of size V for every position.</p>
+    <p>Weight tying: the same matrix serves for input and output. Intuition: characters that are similar as inputs should be similar as predictions too.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 21
+  SYNC: the snippets on slides 21–24 should match the final model.py.
+  The explicit branch is shown (use_flash=False); by default model.py uses
+  F.scaled_dot_product_attention(..., is_causal=True), which is the same computation.
+-->
+<section class="slide code-slide" data-title="Code: CausalSelfAttention">
+  <div class="kicker">Code · model.py</div>
+  <h2 style="margin-bottom:28px"><code class="i" style="font-size:.7em">CausalSelfAttention.forward</code></h2>
+  <div class="body cols c73" style="gap:34px">
+    <pre class="code sm" data-file="model.py"><code class="language-python">def forward(self, x):
+    B, T, C = x.size()  # batch, sequence length, embedding dimension
+    # a single Linear produces q, k, v for all heads at once
+    q, k, v = self.c_attn(x).split(C, dim=2)
+    # split into heads: (B, T, C) -> (B, nh, T, hs)
+    q = q.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)
+    k = k.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)
+    v = v.view(B, T, self.n_head, C // self.n_head).transpose(1, 2)
+
+    # attention: softmax(q @ k^T / sqrt(d)) @ v
+    att = (q @ k.transpose(-2, -1)) * (1.0 / math.sqrt(k.size(-1)))
+    att = att.masked_fill(self.mask[:, :, :T, :T] == 0, float("-inf"))
+    att = F.softmax(att, dim=-1)
+    att = self.attn_dropout(att)
+    y = att @ v  # (B, nh, T, T) @ (B, nh, T, hs) -> (B, nh, T, hs)
+
+    # merge the heads back: (B, nh, T, hs) -> (B, T, C)
+    y = y.transpose(1, 2).contiguous().view(B, T, C)
+    return self.resid_dropout(self.c_proj(y))</code></pre>
+    <div class="stack" style="gap:22px;font-size:25px">
+      <table class="t" style="font-size:24px">
+        <tr><td>B · batch</td><td class="num">64</td></tr>
+        <tr><td>T · context</td><td class="num">256</td></tr>
+        <tr><td>C · n_embd</td><td class="num">384</td></tr>
+        <tr><td>nh · heads</td><td class="num">6</td></tr>
+        <tr><td>hs · C / nh</td><td class="num">64</td></tr>
+      </table>
+      <div class="callout" style="font-size:23px">In <code class="i">model.py</code> it is one line by default:<pre class="code" style="font-size:17px;padding:14px 16px;margin:12px 0">F.scaled_dot_product_attention(
+    q, k, v, is_causal=True)</pre>Same computation, <b>fused</b> (Flash) kernel.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 32:00]</b></p>
+    <p>Go line by line and connect it to the diagrams: split → multi-head, transpose → heads become a batch dimension, q@kᵀ → the T×T affinity matrix, masked_fill → the causal mask, softmax, @v → the weighted sum.</p>
+    <p>Open the real model.py in the editor and show the use_flash branch: flash attention never materializes the T×T matrix, so it is faster and saves memory.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 22 -->
+<section class="slide code-slide" data-title="Code: Block and MLP">
+  <div class="kicker">Code · model.py</div>
+  <h2 style="margin-bottom:28px"><code class="i" style="font-size:.7em">Block</code> and <code class="i" style="font-size:.7em">MLP</code></h2>
+  <div class="body cols c73" style="gap:34px">
+    <pre class="code" data-file="model.py"><code class="language-python">class MLP(nn.Module):
+    def forward(self, x):
+        # expand 4x -> GELU -> back to n_embd
+        return self.dropout(self.c_proj(self.gelu(self.c_fc(x))))
+
+
+class Block(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.ln_1 = nn.LayerNorm(config.n_embd, bias=config.bias)
+        self.attn = CausalSelfAttention(config)
+        self.ln_2 = nn.LayerNorm(config.n_embd, bias=config.bias)
+        self.mlp = MLP(config)
+
+    def forward(self, x):
+        # pre-LayerNorm + residual connections
+        x = x + self.attn(self.ln_1(x))  # tokens "communicate"
+        x = x + self.mlp(self.ln_2(x))   # each token "thinks"
+        return x</code></pre>
+    <div class="stack" style="justify-content:center;gap:24px">
+      <div class="card"><h3>c_fc</h3><p class="muted" style="font-size:25px">384 → 1536</p></div>
+      <div class="card"><h3>GELU</h3><p class="muted" style="font-size:25px">a smooth variant of ReLU</p></div>
+      <div class="card"><h3>c_proj</h3><p class="muted" style="font-size:25px">1536 → 384</p></div>
+      <p class="muted" style="font-size:23px">The MLP holds ~⅔ of the block's parameters.</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:00 | total 33:00]</b></p>
+    <p>Block.forward is literally the two lines from the diagram. MLP: 2 · 384 · 1536 ≈ 1.18M parameters, attention: 4 · 384² ≈ 0.59M. That is why the MLP carries about two thirds of the block.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 23 -->
+<section class="slide code-slide" data-title="Code: GPT">
+  <div class="kicker">Code · model.py</div>
+  <h2 style="margin-bottom:28px"><code class="i" style="font-size:.7em">GPT</code>: embeddings, blocks, head</h2>
+  <div class="body">
+    <pre class="code sm" data-file="model.py" style="font-size:20px"><code class="language-python">self.transformer = nn.ModuleDict(dict(
+    wte=nn.Embedding(config.vocab_size, config.n_embd),  # token embedding
+    wpe=nn.Embedding(config.block_size, config.n_embd),  # position embedding
+    drop=nn.Dropout(config.dropout),
+    h=nn.ModuleList([Block(config) for _ in range(config.n_layer)]),
+    ln_f=nn.LayerNorm(config.n_embd, bias=config.bias),
+))
+self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+self.transformer.wte.weight = self.lm_head.weight  # weight tying: shared matrix
+
+def forward(self, idx, targets=None):
+    B, T = idx.size()
+    pos = torch.arange(T, device=idx.device)
+    x = self.transformer.wte(idx) + self.transformer.wpe(pos)  # (B, T, C)
+    x = self.transformer.drop(x)
+    for block in self.transformer.h:
+        x = block(x)
+    x = self.transformer.ln_f(x)
+    logits = self.lm_head(x)  # (B, T, vocab_size)
+    loss = None
+    if targets is not None:
+        loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
+    return logits, loss</code></pre>
+  </div>
+  <aside class="notes">
+    <p><b>[1:00 | total 34:00]</b></p>
+    <p>Map it onto the GPT diagram: wte + wpe, dropout, the loop over blocks, ln_f, lm_head. Cross-entropy expects (N, V) and (N), so we flatten B and T into one dimension.</p>
+    <p>Note: model.py uses the GPT-2 initialization (std 0.02, c_proj scaled by 1/sqrt(2·n_layer)).</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 24 -->
+<section class="slide code-slide" data-title="Code: generate">
+  <div class="kicker">Code · model.py</div>
+  <h2 style="margin-bottom:28px"><code class="i" style="font-size:.7em">generate</code>: one character per step</h2>
+  <div class="body cols c73" style="gap:34px">
+    <pre class="code sm" data-file="model.py"><code class="language-python">@torch.no_grad()
+def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None):
+    for _ in range(max_new_tokens):
+        # crop the context to the last block_size tokens
+        idx_cond = idx[:, -self.config.block_size :]
+        logits, _ = self(idx_cond)
+        logits = logits[:, -1, :] / temperature  # last position only
+        if top_k is not None:
+            v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+            logits[logits &lt; v[:, [-1]]] = -float("inf")
+        probs = F.softmax(logits, dim=-1)
+        idx_next = torch.multinomial(probs, num_samples=1)  # sample
+        idx = torch.cat((idx, idx_next), dim=1)
+    return idx</code></pre>
+    <ul class="list small" style="justify-content:center">
+      <li><b>Autoregressive</b>: the output becomes part of the input</li>
+      <li>The context is <b>cropped</b> to block_size, because wpe only knows 256 positions</li>
+      <li><code class="i">multinomial</code>, not <code class="i">argmax</code>: otherwise the model quickly gets stuck in a loop</li>
+      <li>No KV cache: we recompute everything (for 10M parameters, fast enough)</li>
+    </ul>
+  </div>
+  <aside class="notes">
+    <p><b>[1:00 | total 35:00]</b></p>
+    <p>Generation is a plain loop. We compute logits for all positions but use only the last one. Temperature and top-k come up in a few minutes, after training.</p>
+    <p>Transition: now we have a model, so let's train it.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 25 -->
+<section class="slide" data-title="Configuration">
+  <div class="kicker">Training · Configuration</div>
+  <h2>Configuration: a small GPT-2</h2>
+  <div class="body cols" style="gap:60px">
+    <!-- SYNC: values match train.py (default and PRESETS["demo"]) -->
+    <table class="t">
+      <tr><th>parameter</th><th style="text-align:right">full</th><th style="text-align:right">--preset=demo</th></tr>
+      <tr><td>n_layer</td><td class="num">6</td><td class="num">4</td></tr>
+      <tr><td>n_head</td><td class="num">6</td><td class="num">4</td></tr>
+      <tr><td>n_embd</td><td class="num">384</td><td class="num">256</td></tr>
+      <tr><td>block_size (context)</td><td class="num">256</td><td class="num">256</td></tr>
+      <tr><td>batch_size</td><td class="num">64</td><td class="num">64</td></tr>
+      <tr><td>dropout</td><td class="num">0.3</td><td class="num">0.3</td></tr>
+      <tr><td>max_iters</td><td class="num">4000</td><td class="num">1000</td></tr>
+      <tr class="em"><td><b>parameters</b></td><td class="num"><b>~10.7M</b></td><td class="num"><b>~3.2M</b></td></tr>
+    </table>
+    <div class="stack" style="justify-content:center;gap:34px">
+      <div class="stat"><span class="v">16,384</span><span class="l">characters per step (64 × 256)</span></div>
+      <div class="stat"><span class="v gold">~66M</span><span class="l">characters seen in 4000 steps: we go through the corpus <b>many</b> times</span></div>
+      <div class="callout" style="font-size:25px">lr 1e-3 → 1e-4 · warmup 100 · AdamW (0.9, 0.99) · wd 0.1 · grad clip 1.0</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:00 | total 36:00]</b></p>
+    <p>This is the same configuration as Karpathy's shakespeare_char: 6 layers, 6 heads, 384, context 256. About 10.7M parameters (10.6M in the blocks, the rest in embeddings).</p>
+    <p>The demo preset is smaller (~3.2M) and finishes in a minute or two on a GPU. The numbers come from train.py; if they change, update the table.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 26 -->
+<section class="slide" data-title="Live demo: training">
+  <div class="kicker">Training · Live</div>
+  <h2>Live: <em>starting the training run</em></h2>
+  <div class="body cols c64" style="gap:50px">
+    <div class="term">
+      <div class="bar"><i></i><i></i><i></i><span>dsc_njegosgpt</span></div>
+<pre><span class="c"># demo: small model, ~1–2 min on a GPU</span>
+<span class="p">$</span> <span class="hl">uv run python train.py --preset=demo</span>
+
+<span class="c"># full model (~10.7M parameters)</span>
+<span class="p">$</span> uv run python train.py
+
+<span class="c"># any parameter: --key=value</span>
+<span class="p">$</span> uv run python train.py --max_iters=2000 --compile=False</pre>
+    </div>
+    <div class="stack" style="justify-content:center">
+      <h3>What to watch in the log</h3>
+      <ul class="list small">
+        <li><code class="i">step 0</code>: loss ≈ ln V ≈ 4.4</li>
+        <li><code class="i">lr</code>: rises during warmup, then decays</li>
+        <li><code class="i">ms</code> and <code class="i">tok/s</code>: speed (the first step is slower because of <code class="i">torch.compile</code>)</li>
+        <li>every <code class="i">eval_interval</code> steps: train/val loss + a text sample</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 37:30] · DEMO STARTS (10 min block, slides 25–30)</b></p>
+    <p>Switch to the terminal and run <code>uv run python train.py --preset=demo</code>. Show the first lines: parameter count, vocabulary size, “compiling the model...” and the loss at step 0 (should be close to ln V).</p>
+    <p>While it trains, go back to the slides and explain the loop, the LR schedule and overfitting. Backup plan: the full training run was done before the talk, results are already in out/.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 27 -->
+<section class="slide code-slide" data-title="Training loop">
+  <div class="kicker">Training · Loop</div>
+  <h2 style="margin-bottom:28px">The training loop</h2>
+  <div class="body cols c64" style="gap:44px">
+    <pre class="code sm" data-file="train.py"><code class="language-python">optimizer = torch.optim.AdamW(groups, lr=1e-3, betas=(0.9, 0.99))
+model = torch.compile(model)
+ctx = torch.autocast("cuda", dtype=torch.bfloat16)
+
+for it in range(max_iters + 1):
+    lr = get_lr(it)  # warmup + cosine
+    for g in optimizer.param_groups:
+        g["lr"] = lr
+
+    x, y = get_batch("train")
+    with ctx:  # forward in bf16
+        logits, loss = model(x, y)
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(model.parameters(), grad_clip)
+    optimizer.step()</code></pre>
+    <ul class="list small" style="justify-content:center;gap:22px">
+      <li><b>AdamW</b>: weight decay only on 2D tensors (matrices, embeddings), not on LayerNorm</li>
+      <li><b>bf16 autocast</b>: ~2× faster, same exponent range as fp32, so no GradScaler needed</li>
+      <li><b>torch.compile</b>: fuses operations into kernels; we pay once at the start</li>
+      <li><b>Grad clipping</b> to norm 1.0: a fuse against rare huge gradients</li>
+    </ul>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 39:30]</b></p>
+    <p>The classic PyTorch loop: forward, backward, step. The details that make the difference: bf16 (unlike fp16 it does not overflow, so no loss scaling either), compile, clipping.</p>
+    <p>Check the terminal: the loss should already be below 3.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 28 -->
+<section class="slide" data-title="LR schedule">
+  <div class="kicker">Training · Learning rate</div>
+  <h2>Learning rate: <em>warmup</em> + cosine decay</h2>
+  <div class="body cols c64" style="gap:44px">
+    <div class="fig"><svg class="rough" data-diagram="lr" viewBox="0 0 1000 600"></svg></div>
+    <div class="stack" style="justify-content:center;gap:24px">
+      <pre class="code sm"><code class="language-python">def get_lr(it):
+    if it &lt; warmup_iters:  # linear warmup
+        return learning_rate * (it + 1) / warmup_iters
+    ratio = (it - warmup_iters) / (max_iters - warmup_iters)
+    coeff = 0.5 * (1.0 + math.cos(math.pi * ratio))
+    return min_lr + coeff * (learning_rate - min_lr)</code></pre>
+      <ul class="list small">
+        <li><b>Warmup</b>: Adam's moment estimates are unreliable early on, so we start slowly</li>
+        <li><b>Cosine</b>: big steps while we are far away, fine ones at the end</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 41:00]</b></p>
+    <p>The plot is drawn with the real values from train.py: lr 1e-3, warmup of 100 steps, cosine down to 1e-4 at step 4000. The warmup is short (2.5% of training), so it looks almost vertical.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 29 -->
+<section class="slide" data-title="Overfitting">
+  <div class="kicker">Training · Overfitting</div>
+  <h2>Small corpus = <em>overfitting</em> is real</h2>
+  <div class="body cols c64" style="gap:44px">
+    <div class="fig"><svg class="rough" data-diagram="overfit" viewBox="0 0 1000 600"></svg></div>
+    <ul class="list small" style="justify-content:center;gap:22px">
+      <li><b>Train/val split</b>: the model never sees the last 10% of the text during training</li>
+      <li>When <b>val</b> starts going up while train keeps falling, the model is <b>memorizing</b> verses instead of learning the style</li>
+      <li>Remedies: <b>dropout 0.3</b>, weight decay, a smaller model, shorter training</li>
+      <li>We keep only the checkpoint with the <b>best val</b> loss</li>
+    </ul>
+  </div>
+  <aside class="notes">
+    <p><b>[1:30 | total 42:30]</b></p>
+    <p>10.7M parameters and about 1.4 million characters: the model has enough capacity to memorize the corpus. Validation is the end of the text (often a different work), so val loss also measures generalization to an unseen style/topic.</p>
+    <p>train.py saves ckpt.pt only when the val loss improves.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 30 -->
+<section class="slide" data-title="Back to the terminal">
+  <div class="kicker">Training · Live</div>
+  <h2>Back to the terminal: what has the model <em>learned</em>?</h2>
+  <div class="body stack" style="gap:30px">
+    <svg class="rough" data-diagram="timeline" viewBox="0 0 1660 420"></svg>
+    <div class="cols" style="gap:40px">
+      <div class="term" style="font-size:24px"><div class="bar"><i></i><i></i><i></i><span>after training</span></div>
+<pre><span class="p">$</span> uv run python sample.py --start="Bura" \
+      --temperature=0.8 --top_k=20
+<span class="p">$</span> uv run python plot_loss.py</pre></div>
+      <div class="callout" style="align-self:center">The order is almost always the same: first character <b>frequencies</b>, then <b>form</b> (spaces, line breaks), then <b>words</b>, then <b>style</b>.</div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:30 | total 45:00] · DEMO ENDS</b></p>
+    <p>Switch to the terminal and read the samples that train.py prints at every eval. Show how the text changes: from noise, through spaces and newlines, to words and the rhythm of the verse. The phases on the diagram are illustrative; the exact steps depend on the model.</p>
+    <p>If the demo is done: run sample.py with a prompt, and plot_loss.py.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 31 -->
+<section class="slide" data-title="Sampling">
+  <div class="kicker">Sampling</div>
+  <h2>Sampling: <em>temperature</em> and top-k</h2>
+  <div class="body stack" style="gap:20px">
+    <svg class="rough" data-diagram="temp" viewBox="0 0 1660 450"></svg>
+    <div class="cols" style="gap:44px">
+      <div class="tex" style="font-size:50px;align-self:center;text-align:center" data-tex="\displaystyle p_i = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}"></div>
+      <ul class="list small tight">
+        <li><b>T &lt; 1</b>: sharper, safer, but repetitive</li>
+        <li><b>T &gt; 1</b>: more creative, but more mistakes too</li>
+        <li><b>top-k</b>: cut off the tail, sample only from the k most likely</li>
+      </ul>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:30 | total 47:30]</b></p>
+    <p>Logits after “Neka bu”: the model is most confident in “d” (Neka bude). Temperature divides the logits before the softmax: T → 0 is argmax, T → ∞ is uniform. Top-k drops everything except the k best and renormalizes.</p>
+    <p>Live: run sample.py with --temperature=0.5 and then 1.5 so the audience sees the difference.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 32 -->
+<section class="slide" data-title="Results">
+  <div class="kicker">Results</div>
+  <h2>Results</h2>
+  <div class="body cols" style="gap:50px">
+    <div class="stack" style="gap:14px">
+      <span class="pill">learning curve · out/loss.png</span>
+      <div class="figure ph card fig" data-ph="results-loss" style="flex:1;padding:18px">
+        <img id="results-loss" src="loss.png" data-fallbacks="../out/loss.png|@embedded" alt="Learning curve: training and validation loss" onload="this.closest('.figure').classList.add('filled')" onerror="lossFallback(this)">
+        <div class="missing-msg">out/loss.png does not exist yet<br><span class="muted">uv run python plot_loss.py</span></div>
+      </div>
+    </div>
+    <div class="stack" style="gap:14px">
+      <span class="pill gold">best sample</span>
+      <pre id="results-sample" class="sample verse ph card" data-ph="results-sample" style="flex:1">VLADIKA DANILO
+Knjiže ti je vojsku opravio,
+e će stražu od podgoričke vojske;
+vjerne bjehu oko grada grada.
+Prokleta se četa samila,
+i daleko mu glavu bez prosula.
+
+VUK MIĆUNOVIĆ
+Kako dođe, sreća ne može,
+no ste drugah puta preturili
+kad ih piperska na vrh Nevesila,
+te pokupi glavu otkinuli.</pre>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:30 | total 50:00]</b></p>
+    <p>The curve: train and val loss over steps. Show where val reached its minimum (that is where the checkpoint was saved). Read the best sample aloud, in decasyllabic rhythm.</p>
+    <p>Placeholders: #results-loss (the image loads by itself: presentation/loss.png, then ../out/loss.png, then an embedded snapshot), #results-sample (text).</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 33 -->
+<section class="slide" data-title="Progress through training">
+  <div class="kicker">Results · Progress</div>
+  <h2>Same model, <em>different steps</em></h2>
+  <div class="body">
+    <div id="results-progress" class="ph" data-ph="results-progress" style="display:grid;grid-template-columns:repeat(4,1fr);gap:22px;height:100%;padding:28px 22px 22px">
+      <figure class="card" data-step="0" style="padding:20px 22px;display:flex;flex-direction:column;gap:10px;min-height:0"><figcaption class="pill" style="align-self:flex-start">step 0</figcaption><pre class="sample" style="padding:0;font-size:19px">sr"SšhdB8g"a(ć;8guuiFĆNLć'..Pf' vnĐExK?hx-f77xN.Hk3!j-LNrPdXŽuMžcoe11jqm-ŠZ-5uaO3(bŠPKf! T"rčB!"</pre></figure>
+      <figure class="card" data-step="250" style="padding:20px 22px;display:flex;flex-direction:column;gap:10px;min-height:0"><figcaption class="pill" style="align-self:flex-start">step 250</figcaption><pre class="sample" style="padding:0;font-size:19px">napazio ka, rejkvo,
+nu vest jave,
+pal' ojerobne ka
+uhlo lova osma jze
+pascanamošnate ji rsutru
+dično crska go.
+Nitvi drnu mopreću,
+u po oga kiska sovolipabe,</pre></figure>
+      <figure class="card" data-step="1000" style="padding:20px 22px;display:flex;flex-direction:column;gap:10px;min-height:0"><figcaption class="pill" style="align-self:flex-start">step 1000</figcaption><pre class="sample" style="padding:0;font-size:19px">Pobrijediše Mahmut-aga,
+oni s Povriliš ni primahnuo!
+U bilo, ne blago rane,
+da su bi dočekat je po Trine,
+na protivnik silnu obune,
+tri paši kad stotinje mračno.</pre></figure>
+      <figure class="card" data-step="3750" style="padding:20px 22px;display:flex;flex-direction:column;gap:10px;min-height:0"><figcaption class="pill gold" style="align-self:flex-start">step 3750 ★</figcaption><pre class="sample" style="padding:0;font-size:19px">Tik mir se podobno pira ostata -
+da nas ti ne čovjek u jednoga cara
+noćno se vraća najđa sila.
+Đe su momče knjigu na sablju došli,
+od podstanka od krvava ćenara</pre></figure>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 52:00]</b></p>
+    <p>Samples from the log of the full training run (train.py prints them every eval_interval = 250 steps). Read step 0 and step 3750 back to back; the contrast is the best part of the talk.</p>
+    <p>Placeholder: #results-progress (one card per step; change the steps as needed).</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 34 -->
+<section class="slide" data-title="What's next">
+  <div class="kicker">What's next</div>
+  <h2>What's next?</h2>
+  <div class="body cols c64" style="gap:56px">
+    <ul class="list small" style="gap:20px">
+      <li><b>BPE tokenizer</b> trained on our language: shorter sequences, longer effective context</li>
+      <li><b>A bigger corpus</b>: Vuk Karadžić's collections of folk poems, all of South Slavic decasyllabic epic poetry</li>
+      <li><b>Fine-tuning</b> an existing multilingual model (e.g. LoRA) instead of training from scratch</li>
+      <li><b>Scaling laws</b> in one line: loss falls as a power law in parameters, data and compute; Chinchilla: ~20 tokens per parameter → ~200M tokens for 10M parameters. We have over 100× less.</li>
+    </ul>
+    <div class="stack" style="gap:20px;justify-content:center">
+      <div class="card"><h3>nanoGPT</h3><p class="muted" style="font-size:23px;font-family:var(--mono)">github.com/karpathy/nanoGPT</p></div>
+      <div class="card"><h3>Let's build GPT: from scratch, in code, spelled out</h3><p class="muted" style="font-size:23px;font-family:var(--mono)">youtube.com/watch?v=kCc8FmEb1nY</p></div>
+      <div class="card ph" id="repo-link" data-ph="repo-link"><h3>Code from the talk</h3><p class="muted" style="font-size:23px;font-family:var(--mono)">github.com/permitt/dsc_njegosgpt</p></div>
+    </div>
+  </div>
+  <aside class="notes">
+    <p><b>[2:00 | total 54:00]</b></p>
+    <p>The biggest gain would come from more data: Njegoš is limited, but the decasyllable is shared by the whole epic tradition. The other route is fine-tuning a large model: it already knows the language, we just give it the style.</p>
+    <p>Scaling laws: Kaplan et al. 2020, Chinchilla (Hoffmann et al. 2022).</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 35 -->
+<section class="slide title end" data-title="Thanks / Questions">
+  <div class="frame"></div>
+  <div class="tag">DSC 2026 · NjegošGPT</div>
+  <h1>Thank you! <em>Questions?</em></h1>
+  <div class="sub" style="font-family:var(--serif);font-style:italic;font-size:46px;color:#d9d5cc">“Neka bude što biti ne može.” · Let there be what cannot be.</div>
+  <div class="who"><span>Mitar Perović</span><span class="dot"></span><span class="muted ph inline" id="speaker-contact" data-ph="speaker-contact" style="padding:6px 16px 6px 16px">linkedin.com/in/perovicmitar · github.com/permitt</span></div>
+  <svg class="rough ridge" data-diagram="ridge" viewBox="0 0 1920 360" preserveAspectRatio="none"></svg>
+  <aside class="notes">
+    <p><b>[6:00 | total 60:00]</b></p>
+    <p>Questions. Backup topics if there are none: why not an RNN/LSTM; how much training on the whole epic corpus would cost; what a KV cache would look like; Cyrillic instead of Latin script.</p>
+  </aside>
+</section>
+
+</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+
+<script>
+/* ============================================================
+   Rough.js helper: Excalidraw style on a dark background
+   ============================================================ */
+const NS = "http://www.w3.org/2000/svg";
+const C = { ink: "#ebe5d6", red: "#e23b4a", gold: "#d9b35b", muted: "#8a91a0", dim: "#4d5463", bg: "#0a0d14" };
+
+function Sketch(svg, seed = 7) {
+  const rc = rough.svg(svg);
+  let i = 0, s = seed;
+  const base = { stroke: C.ink, strokeWidth: 2.3, roughness: 1.15, bowing: 1.1, hachureGap: 8, fillWeight: 1.6, hachureAngle: -41 };
+  const opt = (o = {}) => Object.assign({}, base, { seed: s++ }, o);
+  const add = (node, dashed) => {
+    node.style.setProperty("--i", i++);
+    if (node.tagName === "g") {
+      if (dashed) node.classList.add("nd");
+      else { node.classList.add("dr"); node.querySelectorAll("path").forEach(p => p.setAttribute("pathLength", "1")); }
+    }
+    svg.appendChild(node);
+    return node;
+  };
+  const group = () => document.createElementNS(NS, "g");
+  const api = {
+    rect: (x, y, w, h, o = {}) => add(rc.rectangle(x, y, w, h, opt(o)), o.strokeLineDash),
+    line: (x1, y1, x2, y2, o = {}) => add(rc.line(x1, y1, x2, y2, opt(o)), o.strokeLineDash),
+    ellipse: (cx, cy, w, h, o = {}) => add(rc.ellipse(cx, cy, w, h, opt(o)), o.strokeLineDash),
+    circle: (cx, cy, d, o = {}) => add(rc.circle(cx, cy, d, opt(o)), o.strokeLineDash),
+    path: (d, o = {}) => add(rc.path(d, opt(o)), o.strokeLineDash),
+    curve: (pts, o = {}) => add(rc.curve(pts, opt(o)), o.strokeLineDash),
+    poly: (pts, o = {}) => add(rc.linearPath(pts, opt(o)), o.strokeLineDash),
+    arrow(x1, y1, x2, y2, o = {}) {
+      const g = group(), h = o.head || 16, a = Math.atan2(y2 - y1, x2 - x1);
+      g.appendChild(rc.line(x1, y1, x2, y2, opt(o)));
+      const ho = Object.assign({}, o); delete ho.strokeLineDash;
+      for (const d of [0.42, -0.42]) g.appendChild(rc.line(x2, y2, x2 - h * Math.cos(a + d), y2 - h * Math.sin(a + d), opt(ho)));
+      return add(g, o.strokeLineDash);
+    },
+    carrow(x1, y1, x2, y2, bend, o = {}) {
+      const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1;
+      const cx = mx - (dy / L) * bend, cy = my + (dx / L) * bend;
+      const g = group(), h = o.head || 15, a = Math.atan2(y2 - cy, x2 - cx);
+      g.appendChild(rc.path(`M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`, opt(o)));
+      const ho = Object.assign({}, o); delete ho.strokeLineDash;
+      for (const d of [0.42, -0.42]) g.appendChild(rc.line(x2, y2, x2 - h * Math.cos(a + d), y2 - h * Math.sin(a + d), opt(ho)));
+      return add(g, o.strokeLineDash);
+    },
+    plus(cx, cy, r = 22, o = {}) {
+      const g = group();
+      g.appendChild(rc.circle(cx, cy, 2 * r, opt(o)));
+      g.appendChild(rc.line(cx - r * 0.55, cy, cx + r * 0.55, cy, opt(o)));
+      g.appendChild(rc.line(cx, cy - r * 0.55, cx, cy + r * 0.55, opt(o)));
+      return add(g);
+    },
+    text(x, y, str, o = {}) {
+      const t = document.createElementNS(NS, "text");
+      t.setAttribute("x", x); t.setAttribute("y", y);
+      t.setAttribute("text-anchor", o.anchor || "middle");
+      t.setAttribute("dominant-baseline", "central");
+      t.setAttribute("font-size", o.size || 30);
+      t.setAttribute("fill", o.color || C.ink);
+      if (o.font) t.style.fontFamily = o.font;
+      if (o.weight) t.setAttribute("font-weight", o.weight);
+      if (o.rotate) t.setAttribute("transform", `rotate(${o.rotate} ${x} ${y})`);
+      const lines = String(str).split("\n"), lh = (o.size || 30) * (o.lh || 1.15);
+      if (lines.length === 1) t.textContent = str;
+      else lines.forEach((ln, k) => {
+        const sp = document.createElementNS(NS, "tspan");
+        sp.setAttribute("x", x);
+        sp.setAttribute("y", y + (k - (lines.length - 1) / 2) * lh);
+        sp.textContent = ln; t.appendChild(sp);
+      });
+      t.style.setProperty("--i", i++);
+      svg.appendChild(t);
+      return t;
+    },
+    box(x, y, w, h, label, o = {}) {
+      api.rect(x, y, w, h, o);
+      if (label != null) api.text(x + w / 2, y + h / 2, label, { size: o.size || 30, color: o.tcolor || C.ink, font: o.font });
+    },
+  };
+  return api;
+}
+const softmax = (z, T = 1) => { const m = Math.max(...z.map(v => v / T)); const e = z.map(v => Math.exp(v / T - m)); const s = e.reduce((a, b) => a + b, 0); return e.map(v => v / s); };
+const MONO = "'JetBrains Mono', monospace";
+
+/* ============================================================
+   Diagrams
+   ============================================================ */
+const DIAGRAMS = {
+  ridge(svg) {
+    const S = Sketch(svg, 3);
+    const pts = [[0, 330], [150, 300], [290, 250], [380, 268], [520, 180], [610, 205], [720, 120], [790, 140], [860, 80], [930, 100], [1010, 150], [1120, 130], [1230, 200], [1330, 175], [1460, 240], [1560, 222], [1700, 280], [1820, 268], [1920, 310]];
+    S.poly(pts, { stroke: "rgba(226,59,74,.55)", strokeWidth: 2.4, roughness: 1.6 });
+    S.poly(pts.map(([x, y]) => [x, y + 34 + (x % 7) * 2]), { stroke: "rgba(217,179,91,.22)", strokeWidth: 1.6, roughness: 2 });
+    // Njegoš's chapel/mausoleum on the summit (stylized)
+    S.rect(846, 50, 30, 30, { stroke: "rgba(217,179,91,.6)", strokeWidth: 1.8 });
+    S.poly([[842, 52], [861, 34], [880, 52]], { stroke: "rgba(217,179,91,.6)", strokeWidth: 1.8 });
+  },
+
+  deseterac(svg) {
+    const S = Sketch(svg, 11);
+    const syl = ["Ne", "ka", "bu", "de", "bor", "ba", "ne", "pre", "sta", "na"];
+    let x = 20; const w = 138, gap = 12, y = 40, h = 86;
+    syl.forEach((s, k) => {
+      if (k === 4) { S.line(x + 18, y - 22, x + 18, y + h + 22, { stroke: C.red, strokeWidth: 3.5 }); S.text(x + 18, y + h + 46, "caesura", { size: 24, color: C.red }); x += 36; }
+      S.rect(x, y, w, h, k < 4 ? { fill: "rgba(217,179,91,.18)", fillStyle: "solid", stroke: C.gold } : {});
+      S.text(x + w / 2, y + h / 2, s, { size: 40 });
+      S.text(x + w / 2, y - 18, String(k + 1), { size: 22, color: C.muted });
+      x += w + gap;
+    });
+    S.text(20 + 2 * (w + gap) - gap / 2, y + h + 46, "4 syllables", { size: 26, color: C.gold });
+    S.text(20 + 4 * (w + gap) + 36 + 3 * (w + gap) - gap / 2, y + h + 46, "6 syllables", { size: 26, color: C.ink });
+  },
+
+  pipeline(svg) {
+    const S = Sketch(svg, 21);
+    const labels = ["Wikisource\n(Cyrillic)", "download\nHTML → text", "cleaning\ntitles, footnotes", "Cyrillic\n→ Latin", "data/\nnjegos.txt"];
+    const w = 270, gap = (1660 - 5 * w) / 4, y = 30, h = 140;
+    labels.forEach((l, k) => {
+      const x = k * (w + gap);
+      const last = k === labels.length - 1;
+      S.rect(x, y, w, h, last ? { fill: C.red, fillStyle: "hachure", stroke: C.red } : (k === 3 ? { stroke: C.gold } : {}));
+      S.text(x + w / 2, y + h / 2, l.replace("→", "->"), { size: 31 });
+      if (!last) S.arrow(x + w + 10, y + h / 2, x + w + gap - 10, y + h / 2);
+    });
+  },
+
+  translit(svg) {
+    const S = Sketch(svg, 31);
+    const cyr = "а б в г д ђ е ж з и ј к л љ м н њ о п р с т ћ у ф х ц ч џ ш".split(" ");
+    const lat = "a b v g d đ e ž z i j k l lj m n nj o p r s t ć u f h c č dž š".split(" ");
+    const di = new Set(["lj", "nj", "dž"]), dia = new Set(["đ", "ž", "ć", "č", "š"]);
+    const cols = 6, w = 166, h = 100, gx = 12, gy = 12;
+    cyr.forEach((c, k) => {
+      const r = Math.floor(k / cols), q = k % cols, x = q * (w + gx), y = r * (h + gy);
+      const l = lat[k];
+      const o = di.has(l) ? { stroke: C.red, fill: "rgba(226,59,74,.55)", fillStyle: "hachure", hachureGap: 10, strokeWidth: 2.6 }
+        : dia.has(l) ? { stroke: C.gold, strokeWidth: 2.4 } : { stroke: "rgba(235,229,214,.45)", strokeWidth: 1.6 };
+      S.rect(x + 2, y + 2, w - 4, h - 4, o);
+      S.text(x + 42, y + h / 2, c, { size: 44 });
+      S.arrow(x + 70, y + h / 2, x + 98, y + h / 2, { strokeWidth: 1.6, head: 9, stroke: C.muted });
+      S.text(x + 128, y + h / 2, l, { size: 44, color: di.has(l) ? "#fff" : dia.has(l) ? C.gold : C.ink });
+    });
+  },
+
+  tokens(svg) {
+    const S = Sketch(svg, 41);
+    const str = "Gorski vijenac";
+    const vocab = [...new Set("\n !,.:;?-'ABCDEFGHIJKLMNOPRSTUVZabcdefghijklmnoprstuvzćčđšžĆČĐŠŽ")].sort();
+    const w = 100, gap = (1660 - 14 * w) / 13;
+    S.text(830, 26, "„Gorski vijenac“", { size: 44, color: C.gold });
+    S.text(0, 92, "characters", { size: 26, color: C.muted, anchor: "start" });
+    S.text(830, 398, "id = stoi[c]   (numbers are illustrative, they depend on the corpus)", { size: 24, color: C.muted });
+    [...str].forEach((ch, k) => {
+      const x = k * (w + gap), sp = ch === " ";
+      S.rect(x, 118, w, 92, sp ? { stroke: C.muted, strokeLineDash: [6, 6] } : {});
+      S.text(x + w / 2, 164, sp ? "·" : ch, { size: 44, color: sp ? C.muted : C.ink });
+      S.arrow(x + w / 2, 216, x + w / 2, 276, { strokeWidth: 1.8, head: 11, stroke: C.muted });
+      S.rect(x, 284, w, 80, { stroke: C.red, fill: "rgba(226,59,74,.16)", fillStyle: "solid" });
+      S.text(x + w / 2, 324, String(vocab.indexOf(ch)), { size: 36, font: MONO, color: "#fff" });
+    });
+  },
+
+  nexttok(svg) {
+    const S = Sketch(svg, 51);
+    const str = [..."Neka bude bo"];
+    const w = 104, gap = 10, x0 = 160;
+    const row = (y, from, to, col, label) => {
+      S.text(0, y + 44, label, { size: 32, color: col, anchor: "start" });
+      str.forEach((ch, k) => {
+        const x = x0 + k * (w + gap), inw = k >= from && k <= to;
+        S.rect(x, y, w, 88, inw ? { stroke: col, fill: col === C.red ? "rgba(226,59,74,.18)" : "rgba(217,179,91,.18)", fillStyle: "solid", strokeWidth: 2.6 } : { stroke: "rgba(235,229,214,.3)", strokeWidth: 1.5 });
+        S.text(x + w / 2, y + 44, ch === " " ? "·" : ch, { size: 42, color: inw ? C.ink : C.dim });
+      });
+    };
+    row(40, 0, 7, C.red, "x");
+    row(270, 1, 8, C.gold, "y");
+    for (let k = 0; k < 8; k++) {
+      const xa = x0 + k * (w + gap) + w / 2, xb = x0 + (k + 1) * (w + gap) + w / 2;
+      S.arrow(xa, 136, xb - 6, 262, { strokeWidth: 1.8, head: 12, stroke: C.muted });
+    }
+    S.text(x0 + 4 * (w + gap), 18, "block_size = 8", { size: 26, color: C.red });
+    S.text(x0 + 12 * (w + gap) + 20, 84, "input", { size: 28, color: C.red, anchor: "start" });
+    S.text(x0 + 12 * (w + gap) + 20, 314, "target\n(shifted\nby 1)", { size: 28, color: C.gold, anchor: "start" });
+  },
+
+  bigram(svg) {
+    const S = Sketch(svg, 61);
+    const ch = ["·", "a", "e", "j", "k", "n", "o"];
+    const P = [
+      [.02, .12, .06, .05, .22, .25, .10],
+      [.45, .01, .01, .12, .06, .10, .02],
+      [.40, .01, .01, .04, .05, .15, .02],
+      [.10, .25, .45, .01, .01, .02, .08],
+      [.03, .40, .05, .01, .01, .01, .35],
+      [.15, .30, .25, .30, .02, .01, .12],
+      [.35, .01, .02, .12, .08, .10, .01],
+    ];
+    const x0 = 110, y0 = 110, c = 70;
+    S.text(x0 + 3.5 * c, 26, "next character", { size: 28, color: C.gold });
+    S.text(30, y0 + 3.5 * c, "current character", { size: 28, color: C.gold, rotate: -90 });
+    ch.forEach((t, k) => {
+      S.text(x0 + k * c + c / 2, y0 - 30, t, { size: 32 });
+      S.text(x0 - 30, y0 + k * c + c / 2, t, { size: 32 });
+    });
+    P.forEach((r, i) => r.forEach((p, j) => {
+      S.rect(x0 + j * c, y0 + i * c, c, c, { stroke: "rgba(235,229,214,.35)", strokeWidth: 1.2, roughness: .8, fill: `rgba(226,59,74,${Math.min(.95, p * 2)})`, fillStyle: "solid" });
+    }));
+    S.text(x0 + 3.5 * c, y0 + 7 * c + 34, "V × V table (excerpt)", { size: 26, color: C.muted });
+  },
+
+  comm(svg) {
+    const S = Sketch(svg, 71);
+    const toks = [..."Neka bude"];
+    const w = 130, gap = 52, y = 230, cur = 5;
+    const X = k => 40 + k * (w + gap);
+    toks.forEach((t, k) => {
+      const fut = k > cur;
+      S.rect(X(k), y, w, 100, k === cur ? { stroke: C.red, fill: "rgba(226,59,74,.25)", fillStyle: "solid", strokeWidth: 3 } : fut ? { stroke: C.dim, strokeLineDash: [8, 8] } : {});
+      S.text(X(k) + w / 2, y + 50, t === " " ? "·" : t, { size: 48, color: fut ? C.dim : C.ink });
+      S.text(X(k) + w / 2, y + 128, "t=" + (k + 1), { size: 22, color: C.muted, font: MONO });
+    });
+    for (let k = 0; k < cur; k++) S.carrow(X(k) + w / 2, y - 8, X(cur) + w / 2 - 10 + k * 4, y - 10, -(60 + (cur - k) * 18), { stroke: k === 3 ? C.gold : C.ink, strokeWidth: k === 3 ? 3 : 2 });
+    for (let k = cur + 1; k < toks.length; k++) {
+      S.carrow(X(k) + w / 2, y - 8, X(cur) + w / 2 + 14, y - 10, 70, { stroke: C.dim, strokeLineDash: [7, 8] });
+    }
+    const mx = (X(cur) + X(cur + 1) + w) / 2 + 60, my = 120;
+    S.line(mx - 22, my - 22, mx + 22, my + 22, { stroke: C.red, strokeWidth: 4 });
+    S.line(mx + 22, my - 22, mx - 22, my + 22, { stroke: C.red, strokeWidth: 4 });
+    S.text(X(2) + w / 2, 36, "past: allowed", { size: 30, color: C.ink });
+    S.text(X(7) + w / 2, 36, "future: forbidden", { size: 30, color: C.red });
+  },
+
+  tril(svg) {
+    const S = Sketch(svg, 81);
+    const mat = (x0, y0, c, vals, title, o = {}) => {
+      S.text(x0 + (vals[0].length * c) / 2, y0 - 40, title, { size: 28, color: o.tcol || C.gold });
+      S.rect(x0, y0, vals[0].length * c, vals.length * c, { strokeWidth: 2.4 });
+      vals.forEach((r, i) => r.forEach((v, j) => {
+        const z = v === "0";
+        if (!z && o.fill) S.rect(x0 + j * c + 6, y0 + i * c + 6, c - 12, c - 12, { stroke: "none", fill: o.fill, fillStyle: "solid", roughness: .6 });
+        S.text(x0 + j * c + c / 2, y0 + i * c + c / 2, v, { size: o.size || 30, color: z ? C.dim : C.ink, font: o.font });
+      }));
+    };
+    const y0 = 70, c = 76;
+    mat(0, y0, c, [["1", "0", "0", "0"], ["1", "1", "0", "0"], ["1", "1", "1", "0"], ["1", "1", "1", "1"]], "tril(ones(T, T))", { fill: "rgba(226,59,74,.22)" });
+    S.arrow(320, y0 + 2 * c, 392, y0 + 2 * c);
+    S.text(356, y0 + 2 * c + 32, "÷ sum", { size: 22, color: C.muted });
+    const c2 = 88;
+    mat(410, y0 - 6, c2, [["1", "0", "0", "0"], [".5", ".5", "0", "0"], [".33", ".33", ".33", "0"], [".25", ".25", ".25", ".25"]], "wei", { fill: "rgba(226,59,74,.22)", size: 27 });
+    S.text(410 + 4 * c2 + 40, y0 + 2 * c, "@", { size: 52, color: C.ink });
+    mat(810, y0, c, [["x1"], ["x2"], ["x3"], ["x4"]], "x");
+    S.text(810 + c + 40, y0 + 2 * c, "=", { size: 52 });
+    const ox = 960, ow = 440;
+    S.text(ox + ow / 2, y0 - 40, "out: average of the past", { size: 28, color: C.gold });
+    S.rect(ox, y0, ow, 4 * c);
+    ["x1", "(x1 + x2) / 2", "(x1 + x2 + x3) / 3", "(x1 + … + x4) / 4"].forEach((t, k) => S.text(ox + ow / 2, y0 + k * c + c / 2, t, { size: 30 }));
+    S.text(1430, y0 + 2 * c, "one matmul,\nall positions\nat once", { size: 28, color: C.red, anchor: "start" });
+  },
+
+  qkv(svg) {
+    const S = Sketch(svg, 91);
+    // left: x -> Q, K, V
+    S.rect(20, 245, 120, 110, { stroke: C.red, fill: "rgba(226,59,74,.22)", fillStyle: "solid", strokeWidth: 3 });
+    S.text(80, 300, "x", { size: 46 });
+    S.text(80, 385, "token “b”", { size: 24, color: C.muted });
+    S.text(80, 425, "3 × Linear", { size: 22, color: C.muted });
+    const outs = [["Q", 110, C.red], ["K", 300, C.gold], ["V", 490, C.ink]];
+    outs.forEach(([l, y, col]) => {
+      S.arrow(145, 300, 255, y, { stroke: col, strokeWidth: 2.2 });
+      S.rect(262, y - 38, 76, 76, { stroke: col, strokeWidth: 2.6 });
+      S.text(300, y, l, { size: 40, color: col });
+    });
+    // right: q · k for the previous tokens -> softmax -> weights
+    const toks = ["N", "e", "k", "a", "·", "b"];
+    const sc = [0.2, 0.9, 0.3, 1.6, 2.4, 0.6];
+    const wts = softmax(sc);
+    const x0 = 470, cw = 88;
+    S.text(x0 + 3 * cw, 30, "q(b) · k(j) → softmax → weights", { size: 26, color: C.gold });
+    toks.forEach((t, j) => {
+      const x = x0 + j * cw;
+      S.rect(x + 8, 70, cw - 16, 66, j === 5 ? { stroke: C.red, strokeWidth: 2.6 } : {});
+      S.text(x + cw / 2, 103, t, { size: 34 });
+      S.text(x + cw / 2, 170, sc[j].toFixed(1), { size: 26, color: C.muted, font: MONO });
+      const bh = wts[j] * 300;
+      S.rect(x + 20, 470 - bh, cw - 40, bh, { stroke: C.gold, fill: C.gold, fillStyle: "hachure", hachureGap: 6 });
+      S.text(x + cw / 2, 494, wts[j].toFixed(2), { size: 22, color: C.ink, font: MONO });
+    });
+    S.line(x0, 470, x0 + 6 * cw, 470, { strokeWidth: 1.6 });
+    S.text(x0 - 14, 170, "affinity", { size: 22, color: C.muted, anchor: "end" });
+    S.text(x0 - 14, 400, "weight", { size: 22, color: C.muted, anchor: "end" });
+    S.text(x0 + 3 * cw, 560, "output(b) = Σ weight · v(j)", { size: 30, color: C.ink });
+  },
+
+  sqrtd(svg) {
+    const S = Sketch(svg, 101);
+    const z = [0.3, -0.6, 1.0, 0.1, -0.4, 0.7];
+    const panel = (x0, scale, title, col) => {
+      const p = softmax(z.map(v => v * scale));
+      S.text(x0 + 210, 24, title, { size: 30, color: col });
+      p.forEach((v, j) => {
+        const bh = v * 300, x = x0 + j * 70;
+        S.rect(x + 10, 380 - bh, 50, Math.max(bh, 2), { stroke: col, fill: col, fillStyle: "hachure", hachureGap: 6 });
+        S.text(x + 35, 404, v < 0.005 ? "0" : v.toFixed(2).replace(/^0/, ""), { size: 20, color: C.muted, font: MONO });
+      });
+      S.line(x0, 380, x0 + 420, 380, { strokeWidth: 1.6 });
+    };
+    panel(0, 8, "no scaling (std 8)", C.red);
+    panel(540, 1, "with 1/sqrt(d)  (std 1)", C.gold);
+  },
+
+  mask(svg) {
+    const S = Sketch(svg, 111);
+    const toks = ["N", "e", "k", "a", "·"];
+    const sc = [[0.4, 0, 0, 0, 0], [1.1, -0.3, 0, 0, 0], [0.2, 0.9, 0.5, 0, 0], [-0.5, 0.3, 1.4, 0.1, 0], [0.8, -0.2, 0.6, 1.9, 0.3]];
+    const c = 76;
+    const grid = (x0, y0, title, cell) => {
+      S.text(x0 + 2.5 * c, y0 - 64, title, { size: 30, color: C.gold });
+      toks.forEach((t, k) => { S.text(x0 + k * c + c / 2, y0 - 22, t, { size: 26, color: C.muted }); S.text(x0 - 24, y0 + k * c + c / 2, t, { size: 26, color: C.muted }); });
+      for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) {
+        const fut = j > i;
+        S.rect(x0 + j * c, y0 + i * c, c, c, fut ? { stroke: "rgba(226,59,74,.5)", strokeWidth: 1.3, fill: "rgba(226,59,74,.35)", fillStyle: "hachure", hachureGap: 7, roughness: .9 } : { stroke: "rgba(235,229,214,.4)", strokeWidth: 1.3, roughness: .9 });
+        const [txt, col] = cell(i, j, fut);
+        S.text(x0 + j * c + c / 2, y0 + i * c + c / 2, txt, { size: 22, color: col, font: MONO });
+      }
+    };
+    grid(60, 90, "q · kᵀ / sqrt(d)  +  mask", (i, j, f) => f ? ["-inf", "#ff8a95"] : [sc[i][j].toFixed(1), C.ink]);
+    S.arrow(530, 90 + 2.5 * c, 680, 90 + 2.5 * c, { strokeWidth: 2.6 });
+    S.text(605, 90 + 2.5 * c - 30, "softmax", { size: 30, color: C.red });
+    S.text(605, 90 + 2.5 * c + 30, "per row", { size: 22, color: C.muted });
+    const P = sc.map((r, i) => { const p = softmax(r.slice(0, i + 1)); return [...p, ...Array(4 - i).fill(0)]; });
+    grid(760, 90, "weights (row sums to 1)", (i, j, f) => f ? ["0", C.dim] : [P[i][j].toFixed(2), C.ink]);
+    S.text(1260, 150, "row = query\n(who asks)", { size: 26, color: C.ink, anchor: "start" });
+    S.text(1260, 290, "column = key\n(who is asked)", { size: 26, color: C.ink, anchor: "start" });
+    S.text(1260, 430, "upper triangle\n= future", { size: 26, color: C.red, anchor: "start" });
+  },
+
+  mha(svg) {
+    const S = Sketch(svg, 121);
+    S.rect(0, 200, 150, 120, { strokeWidth: 2.6 });
+    S.text(75, 245, "x", { size: 42 }); S.text(75, 290, "(B, T, 384)", { size: 20, color: C.muted, font: MONO });
+    S.arrow(158, 260, 250, 260);
+    S.text(204, 228, "c_attn", { size: 22, color: C.muted, font: MONO });
+    S.rect(258, 150, 150, 220, { stroke: C.gold });
+    S.text(333, 210, "q", { size: 34, color: C.red }); S.text(333, 260, "k", { size: 34, color: C.gold }); S.text(333, 310, "v", { size: 34 });
+    S.text(333, 400, "split + view", { size: 22, color: C.muted });
+    const hx = 520, hw = 380, hh = 62, gap = 18, y0 = 260 - (6 * hh + 5 * gap) / 2;
+    for (let h = 0; h < 6; h++) {
+      const y = y0 + h * (hh + gap);
+      S.arrow(414, 260, hx - 8, y + hh / 2, { strokeWidth: 1.5, head: 10, stroke: C.muted });
+      S.rect(hx, y, hw, hh, h === 0 ? { stroke: C.red, fill: "rgba(226,59,74,.2)", fillStyle: "solid" } : {});
+      S.text(hx + hw / 2, y + hh / 2, `head ${h + 1}: attention, hs = 64`, { size: 25 });
+      S.arrow(hx + hw + 8, y + hh / 2, 1000, 260, { strokeWidth: 1.5, head: 10, stroke: C.muted });
+    }
+    S.rect(1008, 190, 200, 140, { stroke: C.gold });
+    S.text(1108, 240, "merge heads", { size: 28 }); S.text(1108, 285, "(B, T, 6·64)", { size: 20, color: C.muted, font: MONO });
+    S.arrow(1216, 260, 1318, 260);
+    S.text(1267, 228, "c_proj", { size: 22, color: C.muted, font: MONO });
+    S.rect(1326, 200, 150, 120, { stroke: C.red, fill: "rgba(226,59,74,.22)", fillStyle: "solid", strokeWidth: 2.8 });
+    S.text(1401, 245, "y", { size: 42 }); S.text(1401, 290, "(B, T, 384)", { size: 20, color: C.muted, font: MONO });
+    S.text(1580, 262, "in parallel:\nnh is just\na batch\ndimension", { size: 24, color: C.muted });
+  },
+
+  block(svg) {
+    const S = Sketch(svg, 131);
+    const rx = 150;
+    S.text(rx, 28, "x", { size: 40 });
+    S.arrow(rx, 52, rx, 718, { strokeWidth: 3, stroke: C.gold, head: 18 });
+    S.text(rx, 742, "x'", { size: 40 });
+    S.text(60, 380, "residual stream", { size: 26, color: C.gold, rotate: -90 });
+    const branch = (yb, yplus, boxes) => {
+      S.line(rx, yb, 300, yb, { strokeWidth: 2 });
+      let y = yb - 34;
+      boxes.forEach(([lab, h, o], k) => {
+        if (k === 0) S.arrow(300, yb, 330, yb, { head: 10 });
+        S.rect(338, y, 300, h, o);
+        S.text(488, y + h / 2, lab, { size: 28 });
+        if (k < boxes.length - 1) S.arrow(488, y + h + 4, 488, y + h + 34, { head: 11 });
+        y += h + 40;
+      });
+      const yl = y - 40;
+      S.line(488, yl + 4, 488, yplus, { strokeWidth: 2 });
+      S.arrow(488, yplus, rx + 26, yplus, {});
+      S.plus(rx, yplus, 24, { stroke: C.red, strokeWidth: 2.8 });
+    };
+    branch(110, 340, [["LayerNorm", 68, { stroke: C.muted }], ["Causal\nSelf-Attention", 110, { stroke: C.red, fill: "rgba(226,59,74,.18)", fillStyle: "solid", strokeWidth: 2.8 }]]);
+    branch(420, 660, [["LayerNorm", 68, { stroke: C.muted }], ["MLP\nLinear 4× → GELU\n→ Linear", 136, { stroke: C.gold, fill: "rgba(217,179,91,.14)", fillStyle: "solid", strokeWidth: 2.8 }]]);
+    S.text(690, 30, "× N blocks", { size: 34, color: C.red, anchor: "end" });
+  },
+
+  gpt(svg) {
+    const S = Sketch(svg, 141);
+    const yc = 300;
+    S.rect(0, yc - 60, 150, 120);
+    S.text(75, yc - 14, "ids", { size: 30 }); S.text(75, yc + 26, "(B, T)", { size: 20, color: C.muted, font: MONO });
+    S.arrow(156, yc - 20, 222, yc - 80, { head: 12 });
+    S.arrow(156, yc + 20, 222, yc + 80, { head: 12 });
+    S.rect(230, yc - 140, 190, 110, { stroke: C.red, fill: "rgba(226,59,74,.2)", fillStyle: "solid", strokeWidth: 2.8 });
+    S.text(325, yc - 100, "wte", { size: 34, font: MONO }); S.text(325, yc - 58, "token: WHAT", { size: 22, color: C.muted });
+    S.rect(230, yc + 30, 190, 110, { stroke: C.gold });
+    S.text(325, yc + 70, "wpe", { size: 34, font: MONO }); S.text(325, yc + 112, "position: WHERE", { size: 22, color: C.muted });
+    S.arrow(426, yc - 85, 470, yc - 22, { head: 12 });
+    S.arrow(426, yc + 85, 470, yc + 22, { head: 12 });
+    S.plus(492, yc, 24, { stroke: C.red, strokeWidth: 2.8 });
+    S.arrow(520, yc, 580, yc);
+    // stack of blocks
+    for (let k = 2; k >= 0; k--) S.rect(588 + k * 14, yc - 110 - k * 14, 260, 220, k === 0 ? { strokeWidth: 2.8, fill: C.bg, fillStyle: "solid" } : { stroke: C.dim, fill: C.bg, fillStyle: "solid" });
+    S.text(718, yc - 30, "Block", { size: 40 });
+    S.text(718, yc + 22, "attention + MLP", { size: 24, color: C.muted });
+    S.text(718, yc + 70, "× 6", { size: 34, color: C.red });
+    S.arrow(884, yc, 930, yc);
+    S.rect(938, yc - 50, 140, 100, { stroke: C.muted });
+    S.text(1008, yc, "ln_f", { size: 30, font: MONO });
+    S.arrow(1086, yc, 1132, yc);
+    S.rect(1140, yc - 60, 190, 120, { stroke: C.red, fill: "rgba(226,59,74,.2)", fillStyle: "solid", strokeWidth: 2.8 });
+    S.text(1235, yc - 14, "lm_head", { size: 32, font: MONO }); S.text(1235, yc + 26, "C → V", { size: 22, color: C.muted });
+    S.arrow(1338, yc, 1384, yc);
+    S.rect(1392, yc - 50, 150, 100, { stroke: C.gold });
+    S.text(1467, yc, "softmax", { size: 30 });
+    S.arrow(1467, yc + 56, 1467, yc + 120, { head: 12 });
+    S.text(1467, yc + 150, "p(next character)", { size: 26, color: C.gold });
+    // weight tying
+    S.path(`M 325 ${yc - 146} C 520 40, 1040 40, 1235 ${yc - 66}`, { stroke: C.red, strokeWidth: 2.2, strokeLineDash: [10, 9] });
+    S.text(780, 28, "same V × C matrix  (weight tying)", { size: 28, color: C.red });
+    S.text(718, yc + 170, "(B, T, 384)", { size: 22, color: C.muted, font: MONO });
+    S.text(1235, yc + 90, "(B, T, V) logits", { size: 22, color: C.muted, font: MONO });
+  },
+
+  lr(svg) {
+    const S = Sketch(svg, 151);
+    const lr0 = 1e-3, lrMin = 1e-4, wu = 100, M = 4000;
+    const f = it => it < wu ? lr0 * (it + 1) / wu : lrMin + 0.5 * (1 + Math.cos(Math.PI * Math.min(1, (it - wu) / (M - wu)))) * (lr0 - lrMin);
+    const X = it => 110 + it / M * 840, Y = v => 520 - v / lr0 * 420;
+    S.arrow(110, 530, 110, 70, { strokeWidth: 2 });
+    S.arrow(100, 520, 975, 520, { strokeWidth: 2 });
+    const pts = []; for (let it = 0; it <= M; it += it < 200 ? 10 : 100) pts.push([X(it), Y(f(it))]);
+    S.curve(pts, { stroke: C.red, strokeWidth: 3.4, roughness: .8 });
+    S.text(96, Y(lr0), "1e-3", { size: 22, anchor: "end", font: MONO, color: C.muted });
+    S.text(96, Y(lrMin), "1e-4", { size: 22, anchor: "end", font: MONO, color: C.muted });
+    S.line(110, Y(lrMin), 950, Y(lrMin), { stroke: C.dim, strokeLineDash: [6, 8], strokeWidth: 1.4 });
+    [0, 1000, 2000, 3000, 4000].forEach(t => S.text(X(t), 552, String(t), { size: 20, font: MONO, color: C.muted }));
+    S.text(530, 590, "step", { size: 26, color: C.muted });
+    S.text(40, 290, "learning rate", { size: 26, color: C.muted, rotate: -90 });
+    S.arrow(250, 400, 126, 340, { stroke: C.gold, head: 12 });
+    S.text(260, 404, "warmup: 100 steps", { size: 28, color: C.gold, anchor: "start" });
+    S.text(560, 230, "cosine decay", { size: 30, color: C.ink, anchor: "start" });
+    S.text(560, Y(lrMin) - 24, "min_lr = 1e-4", { size: 24, color: C.muted });
+  },
+
+  overfit(svg) {
+    const S = Sketch(svg, 161);
+    const X = t => 110 + t * 830, Y = v => 520 - (v - 0.6) / 4.0 * 440;
+    const tr = t => 0.75 + 3.65 * Math.exp(-7 * t) - 0.15 * t;
+    const va = t => 1.35 + 3.05 * Math.exp(-8 * t) + 1.1 * Math.max(0, t - 0.38) ** 2 * 3;
+    const ptsT = [], ptsV = [];
+    for (let t = 0; t <= 1.0001; t += 0.025) { ptsT.push([X(t), Y(tr(t))]); ptsV.push([X(t), Y(va(t))]); }
+    S.arrow(110, 530, 110, 60, { strokeWidth: 2 });
+    S.arrow(100, 520, 975, 520, { strokeWidth: 2 });
+    S.curve(ptsT, { stroke: C.ink, strokeWidth: 3, roughness: .7 });
+    S.curve(ptsV, { stroke: C.red, strokeWidth: 3.4, roughness: .7 });
+    let best = 0, bv = 9; for (let t = 0; t <= 1; t += 0.005) if (va(t) < bv) { bv = va(t); best = t; }
+    S.line(X(best), 70, X(best), 520, { stroke: C.gold, strokeLineDash: [8, 8], strokeWidth: 2 });
+    S.circle(X(best), Y(bv), 22, { stroke: C.gold, fill: C.gold, fillStyle: "solid" });
+    S.text(X(best) + 16, 96, "best val → ckpt.pt", { size: 28, color: C.gold, anchor: "start" });
+    S.text(X(0.98), Y(va(0.98)) - 32, "val", { size: 32, color: C.red, anchor: "end" });
+    S.text(X(0.98), Y(tr(0.98)) - 30, "train", { size: 32, color: C.ink, anchor: "end" });
+    S.text(X(0.78), 230, "memorization\n(overfitting)", { size: 28, color: C.red });
+    S.text(530, 560, "step", { size: 26, color: C.muted });
+    S.text(40, 290, "loss", { size: 26, color: C.muted, rotate: -90 });
+  },
+
+  timeline(svg) {
+    const S = Sketch(svg, 171);
+    const st = [["step 0", "random\ncharacters", "ŽaćM;?kđ zr"], ["~100", "spaces and\nnewlines", "ae o ne te"], ["~500", "syllables and\ncommon words", "ne je ka bi"], ["~2000", "Ijekavian,\nverse rhythm", "pa se vijek"], ["end", "verses in\nNjegoš's spirit", "“…”"]];
+    const x0 = 120, dx = 355, y = 150;
+    S.arrow(40, y, 1640, y, { strokeWidth: 2.4, stroke: C.muted });
+    st.forEach(([k, d, ex], i) => {
+      const x = x0 + i * dx;
+      S.circle(x, y, 34, i === st.length - 1 ? { stroke: C.red, fill: C.red, fillStyle: "solid" } : { stroke: C.gold, fill: C.bg, fillStyle: "solid", strokeWidth: 2.6 });
+      S.text(x, y - 60, k, { size: 28, color: i === st.length - 1 ? C.red : C.gold, font: MONO });
+      S.text(x, y + 90, d, { size: 32 });
+      S.text(x, y + 190, ex, { size: 24, color: C.muted, font: MONO });
+    });
+    S.text(1640, 30, "illustrative", { size: 22, color: C.muted, anchor: "end" });
+  },
+
+  temp(svg) {
+    const S = Sketch(svg, 181);
+    const lab = ["d", "j", "r", "k", "s", "l"];
+    const z = [3.0, 1.6, 1.1, 0.7, 0.3, 0.0];
+    const panels = [["T = 0.5", 0.5, null], ["T = 1.0", 1, null], ["T = 2.0", 2, null], ["T = 1, top-k = 3", 1, 3]];
+    const pw = 360, gapx = (1660 - 4 * pw) / 3, base = 360, H = 270;
+    S.text(830, 18, "“Neka bu_”: which character comes next?", { size: 30, color: C.gold });
+    panels.forEach(([title, T, k], pi) => {
+      const x0 = pi * (pw + gapx);
+      let p = softmax(z, T);
+      if (k) { p = p.map((v, i) => i < k ? v : 0); const s = p.reduce((a, b) => a + b, 0); p = p.map(v => v / s); }
+      S.text(x0 + pw / 2, 74, title, { size: 30, color: k ? C.red : C.ink });
+      const bw = pw / 6;
+      p.forEach((v, i) => {
+        const bh = v * H, x = x0 + i * bw;
+        if (v > 0) S.rect(x + 10, base - bh, bw - 20, Math.max(bh, 3), { stroke: i === 0 ? C.red : C.gold, fill: i === 0 ? C.red : C.gold, fillStyle: "hachure", hachureGap: 6 });
+        else S.text(x + bw / 2, base - 14, "×", { size: 30, color: C.dim });
+        S.text(x + bw / 2, base + 30, lab[i], { size: 30 });
+        S.text(x + bw / 2, base - Math.max(bh, 3) - 18, v === 0 ? "" : v.toFixed(2).replace(/^0/, ""), { size: 18, font: MONO, color: C.muted });
+      });
+      S.line(x0, base, x0 + pw, base, { strokeWidth: 1.6 });
+      if (k) S.line(x0 + k * bw, 110, x0 + k * bw, base + 50, { stroke: C.red, strokeLineDash: [7, 7], strokeWidth: 2 });
+    });
+    S.text(830, 432, "sharper  ←  temperature  →  flatter", { size: 26, color: C.muted });
+  },
+};
+
+/* ============================================================
+   Slide engine
+   ============================================================ */
+const stage = document.getElementById("stage");
+const slides = [...document.querySelectorAll(".slide")];
+const N = slides.length;
+let cur = 0;
+
+slides.forEach((s, k) => {
+  if (!s.classList.contains("title")) {
+    const f = document.createElement("div");
+    f.className = "foot";
+    f.innerHTML = `<span>NjegošGPT · DSC 2026</span><span class="n"><b>${String(k + 1).padStart(2, "0")}</b> / ${N}</span>`;
+    s.appendChild(f);
+  }
+});
+
+function fit() {
+  if (document.body.classList.contains("overview")) {
+    const z = Math.min(0.2, (innerWidth - 68 - 4 * 22) / 5 / 1920);
+    document.documentElement.style.setProperty("--z", z);
+    return;
+  }
+  const sc = Math.min(innerWidth / 1920, innerHeight / 1080);
+  stage.style.transform = `translate(-50%, -50%) scale(${sc})`;
+}
+
+function go(i) {
+  i = Math.max(0, Math.min(N - 1, i));
+  slides[cur].classList.remove("active", "play");
+  cur = i;
+  const s = slides[cur];
+  s.classList.add("active");
+  void s.offsetWidth; // restart the drawing animation
+  s.classList.add("play");
+  if (location.hash !== "#" + (cur + 1)) history.replaceState(null, "", "#" + (cur + 1));
+  updateNotes();
+}
+const next = () => go(cur + 1), prev = () => go(cur - 1);
+
+function toggleOverview() {
+  const on = document.body.classList.toggle("overview");
+  fit();
+  if (on) slides[cur].scrollIntoView({ block: "center" });
+}
+
+function onKey(e) {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (["ArrowRight", "ArrowDown", "PageDown", " ", "Enter"].includes(k)) { e.preventDefault(); if (!document.body.classList.contains("overview")) next(); else toggleOverview(); }
+  else if (["ArrowLeft", "ArrowUp", "PageUp", "Backspace"].includes(k)) { e.preventDefault(); prev(); }
+  else if (k === "Home") go(0);
+  else if (k === "End") go(N - 1);
+  else if (k === "o" || k === "O" || (k === "Escape" && document.body.classList.contains("overview"))) toggleOverview();
+  else if (k === "f" || k === "F") { if (!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); }
+  else if (k === "s" || k === "S") openNotes();
+}
+document.addEventListener("keydown", onKey);
+
+document.getElementById("viewport").addEventListener("click", e => {
+  if (document.body.classList.contains("overview")) {
+    const s = e.target.closest(".slide");
+    if (s) { go(slides.indexOf(s)); toggleOverview(); }
+    return;
+  }
+  if (e.target.closest("a, pre, code, img, .no-advance") || getSelection().toString()) return;
+  if (e.clientX < innerWidth * 0.3) prev(); else next();
+});
+
+window.addEventListener("resize", fit);
+window.addEventListener("hashchange", () => { const n = parseInt(location.hash.slice(1), 10); if (n && n - 1 !== cur) go(n - 1); });
+
+/* ---------- speaker notes popup (s) ---------- */
+let notesWin = null, t0 = null, tick = null;
+window.__resetTimer = () => { t0 = Date.now(); };
+function openNotes() {
+  notesWin = window.open("", "njegosgpt-notes", "width=1000,height=760");
+  if (!notesWin) return;
+  if (t0 === null) t0 = Date.now();
+  const d = notesWin.document;
+  d.open();
+  d.write(`<!doctype html><html><head><meta charset="utf-8"><title>Notes · NjegošGPT</title>
+<style>
+body{margin:0;background:#0a0d14;color:#ebe7df;font:22px/1.5 Inter,system-ui,sans-serif;padding:28px 34px}
+header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #2a3040;padding-bottom:14px;margin-bottom:18px}
+#timer{font:600 54px/1 "JetBrains Mono",monospace;color:#e23b4a;cursor:pointer}
+#cur{font:600 28px "Space Grotesk",Inter,sans-serif}
+#next{color:#939aa9;font-size:18px;margin-top:4px}
+#notes p{margin:0 0 14px}#notes b{color:#d9b35b}
+small{color:#6b7282}
+</style></head><body>
+<header><div><div id="cur"></div><div id="next"></div></div><div style="text-align:right"><div id="timer" title="click = reset">00:00</div><small>click the timer = reset · arrow keys work here too</small></div></header>
+<div id="notes"></div>
+<script>document.getElementById('timer').onclick=()=>opener&&opener.__resetTimer();<\/script>
+</body></html>`);
+  d.close();
+  d.addEventListener("keydown", onKey);
+  clearInterval(tick);
+  tick = setInterval(() => {
+    if (!notesWin || notesWin.closed) { clearInterval(tick); return; }
+    const s = Math.floor((Date.now() - t0) / 1000);
+    const el = notesWin.document.getElementById("timer");
+    if (el) el.textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+  }, 500);
+  updateNotes();
+}
+function updateNotes() {
+  if (!notesWin || notesWin.closed) return;
+  const d = notesWin.document, s = slides[cur], n = slides[cur + 1];
+  const set = (id, v, html) => { const el = d.getElementById(id); if (el) el[html ? "innerHTML" : "textContent"] = v; };
+  set("cur", `${cur + 1} / ${N} · ${s.dataset.title || ""}`);
+  set("next", n ? `next: ${n.dataset.title || ""}` : "end");
+  set("notes", s.querySelector(".notes")?.innerHTML || "<p><i>no notes</i></p>", true);
+}
+
+/* ---------- placeholders: mirror the results and mark as filled ---------- */
+function syncPlaceholders() {
+  document.querySelectorAll("[data-mirror]").forEach(el => {
+    const src = document.getElementById(el.dataset.mirror);
+    if (src) { el.textContent = src.textContent.split(/\n\s*\n/)[0]; if (!/TODO/.test(src.textContent)) el.classList.add("filled"); }
+  });
+  ["results-sample", "dataset-stats", "results-progress", "speaker-bio", "repo-link", "speaker-contact"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !/TODO/.test(el.textContent)) el.classList.add("filled");
+  });
+}
+
+/* ---------- init ---------- */
+function init() {
+  document.querySelectorAll("svg.rough[data-diagram]").forEach(svg => {
+    const fn = DIAGRAMS[svg.dataset.diagram];
+    if (fn) try { fn(svg); } catch (err) { console.error("diagram", svg.dataset.diagram, err); }
+  });
+  if (window.hljs) document.querySelectorAll("pre.code code").forEach(el => hljs.highlightElement(el));
+  if (window.katex) document.querySelectorAll(".tex[data-tex]").forEach(el => katex.render(el.dataset.tex, el, { throwOnError: false, displayMode: false }));
+  syncPlaceholders();
+  fit();
+  const n = parseInt(location.hash.slice(1), 10);
+  go(n ? n - 1 : 0);
+  document.body.dataset.ready = "1";
+}
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(init);
+</script>
+</body>
+</html>

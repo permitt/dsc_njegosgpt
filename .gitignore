@@ -1,0 +1,26 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# macOS
+.DS_Store
+
+# Corpus: rebuilt by `uv run prepare_data.py` (see data/SOURCES.md for sources and licensing)
+data/njegos.txt
+data/raw/
+
+# Scratch output of train.py (overwritten on every run); the reference run lives in results/
+out/
+
+# Checkpoint of the reference run: published as a release asset, not in git
+results/ckpt.pt
+
+# Local working copy of the slides (Serbian draft)
+presentation/index.sr.html

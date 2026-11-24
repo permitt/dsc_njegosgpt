@@ -1,0 +1,27 @@
+[project]
+name = "njegosgpt"
+version = "0.1.0"
+description = "Character-level GPT trained from scratch on the works of Petar II Petrović Njegoš"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.5",
+    "torch>=2.15.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.6",
+]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = ["I"]
+ignore = ["BLE001"]  # train.py deliberately catches any torch.compile error
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
