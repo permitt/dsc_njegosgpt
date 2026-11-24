@@ -74,14 +74,11 @@ Requires [uv](https://docs.astral.sh/uv/) and Python 3.12.
 ```bash
 uv sync
 
-# 1. Build the corpus: downloads the sources, cleans them, writes data/njegos.txt
-uv run prepare_data.py
-
-# 2. Train. Writes out/ckpt.pt, out/log.csv and a text sample at every evaluation
+# 1. Train on data/njegos.txt. Writes out/ckpt.pt, out/log.csv and a text sample at every evaluation
 uv run train.py                  # full model, 10.75M parameters
 uv run train.py --preset=demo    # small model for a quick run, 3.23M parameters
 
-# 3. Sample and plot
+# 2. Sample and plot
 uv run sample.py --start="VLADIKA DANILO\n" --temperature=0.8 --top_k=20
 uv run plot_loss.py
 ```
@@ -97,6 +94,8 @@ curl -L -o ckpt.pt https://github.com/permitt/dsc_njegosgpt/releases/download/v1
 uv run sample.py --ckpt ckpt.pt --start="VLADIKA DANILO\n" --temperature=0.8 --top_k=20
 ```
 
+To rebuild the corpus from its sources instead of using the copy in the repo: `uv run prepare_data.py`.
+
 Tests: `uv run pytest`.
 
 ## What is in the repo
@@ -108,6 +107,7 @@ Tests: `uv run pytest`.
 | `sample.py` | Generates text from a checkpoint, with temperature and top-k |
 | `plot_loss.py` | Plots the loss curve from `log.csv` |
 | `prepare_data.py` | Downloads, cleans and transliterates the corpus |
+| `data/njegos.txt` | The training corpus |
 | `presentation/index.html` | The slides, a single HTML file |
 | `results/` | Loss log, loss plot and samples of the reference run |
 | `tests/` | Tests for the model (shapes, initial loss, causal masking) and the data pipeline |
@@ -147,13 +147,14 @@ the text is the validation set.
 Tokenization is one character, one token. Cyrillic sources are transliterated to Latin, so `љ`, `њ` and `џ`
 become two tokens each (`lj`, `nj`, `dž`).
 
-The corpus is not stored in this repository. `prepare_data.py` rebuilds it from two sources:
+The corpus is in [data/njegos.txt](data/njegos.txt). `prepare_data.py` built it from two sources and can
+rebuild it from scratch:
 
 - [sr.wikisource.org](https://sr.wikisource.org) for the texts it has.
 - The electronic *Sabrana dela* from [ppnjegos.com](https://ppnjegos.com/sabdela.htm) (ed. Aleksandar Lazić,
-  XML by Predrag Janičić and Aleksandar Gogić, 2024) for the rest. Njegoš's text is in the public domain,
-  but this edition is published under CC BY-ND 4.0, which is why the processed corpus is not redistributed
-  here.
+  XML by Predrag Janičić and Aleksandar Gogić, 2024) for the rest: the remaining poems, *Ogledalo srpsko*,
+  the letters, prose and testament. Njegoš's text is in the public domain; the edition itself is published
+  under CC BY-ND 4.0.
 
 Per-work character counts, source URLs and cleaning rules are in [data/SOURCES.md](data/SOURCES.md).
 

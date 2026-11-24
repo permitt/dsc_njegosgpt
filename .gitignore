@@ -12,8 +12,7 @@ wheels/
 # macOS
 .DS_Store
 
-# Corpus: rebuilt by `uv run prepare_data.py` (see data/SOURCES.md for sources and licensing)
-data/njegos.txt
+# Per-work intermediate files and cached downloads of prepare_data.py (the final corpus, data/njegos.txt, is tracked)
 data/raw/
 
 # Scratch output of train.py (overwritten on every run); the reference run lives in results/
